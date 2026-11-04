@@ -365,7 +365,7 @@ body.mview .hintCard{display:block}
 .pl-card .h em{margin-left:auto;font-style:normal;font:600 18px/1 "Songti SC","Noto Serif CJK SC",serif;color:#f3ecd9}
 .pl-card .h small{font:400 11px sans-serif;color:var(--mute);margin-left:2px}
 .ckgrp{display:flex;flex-direction:column;gap:2px;flex:none}.diffck b{font-weight:600;color:var(--accent,#e8c47a);margin-left:4px;font-size:12px}.diffck{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;white-space:nowrap;flex:none;margin-top:4px;padding:0 4px;color:var(--text,inherit);font-size:13px}.diffck input{width:auto!important;height:auto!important;margin:0}
-.pl-tbl .pl-diff{min-width:150px;margin-top:5px}.pl-diff{margin-top:6px;padding:5px 8px;border-radius:6px;background:rgba(248,113,113,.15);color:#fca5a5;font-size:12px;line-height:1.5;font-weight:600;white-space:normal}
+.pl-tbl .pl-diff{min-width:150px;margin-top:5px}.pl-diff.pl-new{background:#708069;color:#fff}.pl-diff{margin-top:6px;padding:5px 8px;border-radius:6px;background:rgba(248,113,113,.15);color:#fca5a5;font-size:12px;line-height:1.5;font-weight:600;white-space:normal}
 .pl-shot{font-style:normal;font-size:11px;padding:0 6px;border-radius:4px;background:rgba(80,190,160,.18);border:1px solid rgba(80,190,160,.5);color:#b0ead8}
 .pl-card .tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
 .pl-tag{font-size:12px;padding:0 7px;border-radius:4px;border:1px solid #3a3a43;color:#cfcac0}
@@ -1970,7 +1970,7 @@ function renderScenes(rows){
   if(!rows.length){$('#vScenes').innerHTML='<div class="empty">没有符合的场次</div>';return}
   const tp=rows.reduce((a,s)=>a+(num(s.pages)||0),0);
   const pgOf=s=>num(s.pages)!==null?`${fmt(s.pages)}<small>页</small>`:esc(s.pnote||'');
-  const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)?'<b class="dfx">！</b>':'';
+  const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff${DD.get(s.id).length===1&&DD.get(s.id)[0]===NEWTXT?' pl-new':''}">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)?'<b class="dfx">！</b>':'';
   const NOP=new Set(PLAN?planAdded().map(x=>x.ep+'|'+x.sc):[]),npTag=s=>NOP.has(s.ep+'|'+s.sc)?'<i class="nplan" title="大计划无">★</i>':'';
   const chipsOf=s=>S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('');
   const cards=rows.map(s=>{
@@ -2205,6 +2205,7 @@ function planAdded(){ // 加戏:场次表(已拍)里有、拍摄日程表里找�
    .sort((a,b)=>(+a.ep-+b.ep)||(parseInt(String(a.sc))||0)-(parseInt(String(b.sc))||0)||String(a.sc).localeCompare(String(b.sc)));
 }
 /* 大计划日程与已拍场次的差异(日程页和场次表共用) */
+const NEWTXT='原大计划无,新加场次';
 function planDiff(){
   const P=PLAN,days=P.days,ADD=planAdded();
   const IDS=new Map(),shot=new Set(S.scenes.map(s=>String(s.ep)+'|'+String(s.sc)));
@@ -2239,12 +2240,12 @@ function planDiff(){
     return out;
   };
   const today=(()=>{const n=new Date();return n.getMonth()*100+n.getDate()})();
-  const dfl=ps=>{if(ps.add)return['新加场次'];
+  const dfl=ps=>{if(ps.add)return[NEWTXT];
     if(!shot.has(ps.ep+'|'+ps.sc)){ // 还没拍:日程标「？」的角色,日程日期已经过了场次表还没有这场,也注记
       const u=(ps.unsure||[]).filter(r=>ps.cast.includes(r)),d=days[ps.day];
       return u.length&&d&&(d.m-1)*100+d.d<today?['日程标「？」的 '+u.join('、')+':日程日期('+d.m+'/'+d.d+')已过,场次表还没有这场']:null}
     const o=diffOf(ps);return o&&o.length?o:null};
-  const dfHTML=ps=>{const o=dfl(ps);return o?`<div class="pl-diff">${o.map(esc).join('<br>')}</div>`:''};
+  const dfHTML=ps=>{const o=dfl(ps);return o?`<div class="pl-diff${o.length===1&&o[0]===NEWTXT?' pl-new':''}">${o.map(esc).join('<br>')}</div>`:''};
   return{P,days,ADD,shot,diffOf,dfl,dfHTML,IDS};
 }
 let DBDIFF_C=null;
@@ -2252,13 +2253,13 @@ function dbDiff(){ // 场次表用:场次编号 → 与大计划的差异说明
   if(!PLAN)return new Map();
   const {P,diffOf,ADD,IDS}=planDiff(),m=new Map(),put=(id,t)=>{if(!m.has(id))m.set(id,[]);t.forEach(x=>{if(!m.get(id).includes(x))m.get(id).push(x)})};
   P.scenes.forEach(ps=>{const o=diffOf(ps);if(o&&o.length)(IDS.get(ps.ep+'|'+ps.sc)||[]).forEach(id=>put(id,o))});
-  ADD.forEach(x=>S.scenes.filter(d=>String(d.ep)===String(x.ep)&&String(d.sc)===String(x.sc)).forEach(d=>put(d.id,['新加场次(大计划无)'])));
+  ADD.forEach(x=>S.scenes.filter(d=>String(d.ep)===String(x.ep)&&String(d.sc)===String(x.sc)).forEach(d=>put(d.id,[NEWTXT])));
   return m;
 }
 function schList(){
   const {P,days,ADD,shot,diffOf,dfl,dfHTML}=planDiff();
   const q=toSimp(SCHF.q.trim()).split(/\s+/).filter(Boolean);
-  const hay=s=>{const d=s.add?{n:'',m:'',d:'',wk:'',wx:'',grp:''}:days[s.day];return toSimp([s.add?'新加场次 加戏 '+s.dbdate:'',s.ep,s.sc,s.loc,s.region,s.main,s.sub,s.hint,s.act,s.light,s.io,s.season,s.summary,s.cast.join(' '),'DAY'+d.n,d.m+'月'+d.d+'日',d.m+'.'+d.d,d.m+'/'+d.d,d.wk,d.wx,d.grp,(s.add||shot.has(s.ep+'|'+s.sc))?'已拍':''].join(' '))};
+  const hay=s=>{const d=s.add?{n:'',m:'',d:'',wk:'',wx:'',grp:''}:days[s.day];return toSimp([s.add?'新加场次 原大计划无 加戏 '+s.dbdate:'',s.ep,s.sc,s.loc,s.region,s.main,s.sub,s.hint,s.act,s.light,s.io,s.season,s.summary,s.cast.join(' '),'DAY'+d.n,d.m+'月'+d.d+'日',d.m+'.'+d.d,d.m+'/'+d.d,d.wk,d.wx,d.grp,(s.add||shot.has(s.ep+'|'+s.sc))?'已拍':''].join(' '))};
   let rows=[...P.scenes,...(SCHF.dates.length?[]:ADD)].map((s,i)=>({s,i})).filter(x=>(!SCHF.eps.length||SCHF.eps.includes(+x.s.ep))&&(!SCHF.dates.length||(!x.s.add&&SCHF.dates.includes(`${YEAR}-${pad(days[x.s.day].m)}-${pad(days[x.s.day].d)}`)))&&(!SCHF.roles.length||SCHF.roles.every(r=>x.s.cast.includes(r)))&&(!q.length||q.every(t=>hay(x.s).includes(t)))&&(!SCHF.diff||dfl(x.s))&&(!SCHF.un||(!x.s.add&&!shot.has(x.s.ep+'|'+x.s.sc))));
   const scNo=v=>{const m=String(v).match(/\d+/);return m?+m[0]:0};
   const eff=(SCHF.eps.length&&(SCHSORT.auto||VIEW==='card'))?{key:SCHF.eps.length>1?'ep':'sc',dir:1}:SCHSORT; // 选了某一集:预设按场号递增,才看得出剧情发展顺序
