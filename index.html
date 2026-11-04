@@ -2060,7 +2060,7 @@ function epChart(rows){
   const tot={};rows.forEach(s=>S.roles.forEach(r=>{if(s.cast[r]===1)tot[r]=(tot[r]||0)+(num(s.pages)||0)}));
   // 每一集各自取戏份(页数)最多的前 5 位角色上色,其余一律灰色;同一个角色在每一集用同一个颜色
   const BARW=window.innerWidth<560?210:900; // 估算一条的宽度,按色块实际宽度决定写全名、姓氏+%、或只写姓氏
-  const segLab=(n,pc)=>{const w=pc/100*BARW,p=Math.round(pc)+'%',f=[...n][0];
+  const segLab=(n,pc)=>{const w=pc/100*BARW,p=Math.round(pc)+'%',f=SUR(n);
     if(n==='其他')return w>=60?n+' '+p:w>=17?p:'';
     return w>=n.length*12+38?esc(n)+' '+p:w>=40?esc(f)+' '+p:w>=17?p:''}; // 百分比一律保留:放得下就写「名 %」→「姓 %」→只写 %
   const EPAL=['#d9b56c','#4fb3a9','#6a8ff0','#a07bd8','#e8884a','#8bc56b','#e36f6f','#5fc7e8','#c9a0dc','#f2c94c','#6fd1a0','#d4789b','#7aa2c8','#b5c26a','#ef9f76','#9a8cf0'];
@@ -2072,12 +2072,14 @@ function epChart(rows){
   const PAL=['#f3c300','#2f6fed','#e8431c','#17b26a','#8a3ffc','#00b8d9','#ff9f1a','#a3d900','#c0392b','#7ec8e3','#7a5a2b','#0b6e4f','#d4a373','#4b2e83','#b8e986','#ff7f6e','#1e3a8a','#c2b280','#00e0b0','#9b2d82','#ffd966','#5dade2','#a04000','#58d68d','#6c5ce7','#e5e500','#008b8b','#ff6b35','#3d85c6','#b5651d','#9acd32','#8e44ad','#f0b27a','#26c6da','#6b8e23','#d35400'];
   const lab=h=>{const c=[1,3,5].map(i=>{let v=parseInt(h.slice(i,i+2),16)/255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)});const X=(c[0]*.4124+c[1]*.3576+c[2]*.1805)/.95047,Y=c[0]*.2126+c[1]*.7152+c[2]*.0722,Z=(c[0]*.0193+c[1]*.1192+c[2]*.9505)/1.08883,f=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;return[116*f(Y)-16,500*(f(X)-f(Y)),200*(f(Y)-f(Z))]};
   const dE=(p,q)=>{const a=lab(p),b=lab(q);return Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])};
+  const SUR=n=>n==='祝阮/阮卿卿'?'卿':[...n][0];
   const col={},dark=new Set(),taken=new Set(),nb={};
   top.forEach(r=>nb[r]=new Set());eps.forEach(ep=>{const t=topOf(ep);t.forEach(x=>t.forEach(y=>{if(x!==y)nb[x].add(y)}))});
   top.forEach(r=>{
     if(r===PINK){col[r]='#ff4fa3';return}
-    const ref=['#ff4fa3','#7b7b86',...[...nb[r]].filter(x=>col[x]).map(x=>col[x])];
-    let best=null,bs=-1;PAL.forEach(c=>{if(taken.has(c))return;const sc=Math.min(...ref.map(q=>dE(c,q)));if(sc>bs){bs=sc;best=c}});
+    const ref=[['#ff4fa3',1],['#7b7b86',1],...[...nb[r]].filter(x=>col[x]).map(x=>[col[x],1])];
+    top.forEach(x=>{if(x!==r&&col[x]&&SUR(x)===SUR(r))ref.push([col[x],.45])}); // 同姓的角色:颜色要拉得特别开(差距按 .45 折算,等于要更远才算够)
+    let best=null,bs=-1;PAL.forEach(c=>{if(taken.has(c))return;const adj=Math.min(...ref.map(([q,k])=>dE(c,q)*k));if(adj>bs){bs=adj;best=c}});
     if(!best)best=PAL[Object.keys(col).length%PAL.length];
     taken.add(best);col[r]=best;if(lab(best)[0]>=68)dark.add(best)});
   const segs=eps.map(ep=>{
