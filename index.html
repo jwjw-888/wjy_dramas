@@ -1903,7 +1903,7 @@ const T2S=(()=>{const t="喪為舉樂書亂產傷蘭內擊匱單賣廳縣場奪�
 const toSimp=x=>String(x||'').replace(/[\u3400-\u9fff]/g,c=>T2S[c]||c).toLowerCase();
 let NPONLY=false,DFONLY=false;
 function filtered(){
-  const dfk=DFONLY&&PLAN?new Set(dbDiff().keys()):null;
+  const dfk=DFONLY&&PLAN?(()=>{const add=new Set(planAdded().map(x=>x.ep+'|'+x.sc)),dd=dbDiff();return new Set(S.scenes.filter(s=>!add.has(s.ep+'|'+s.sc)&&dd.has(s.id)).map(s=>s.id))})():null; // 「已拍但大计划没有」的场次(★)不算在里面
   const npk=NPONLY&&PLAN?new Set(planAdded().map(x=>x.ep+'|'+x.sc)):null;
   const ep=$('#fEp').value?$('#fEp').value.split(','):[],dt=$('#fDate').value,ro=$('#fRole').value?$('#fRole').value.split('|'):[],q=toSimp($('#fQ').value.trim()),ph=$('#fPhoto').checked;
   const base=sorted();
@@ -1970,7 +1970,7 @@ function renderScenes(rows){
   if(!rows.length){$('#vScenes').innerHTML='<div class="empty">没有符合的场次</div>';return}
   const tp=rows.reduce((a,s)=>a+(num(s.pages)||0),0);
   const pgOf=s=>num(s.pages)!==null?`${fmt(s.pages)}<small>页</small>`:esc(s.pnote||'');
-  const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff${DD.get(s.id).length===1&&DD.get(s.id)[0]===NEWTXT?' pl-new':''}">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)?'<b class="dfx">！</b>':'';
+  const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff${DD.get(s.id).length===1&&DD.get(s.id)[0]===NEWTXT?' pl-new':''}">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)&&!NOP.has(s.ep+'|'+s.sc)?'<b class="dfx">！</b>':'';
   const NOP=new Set(PLAN?planAdded().map(x=>x.ep+'|'+x.sc):[]),npTag=s=>NOP.has(s.ep+'|'+s.sc)?'<i class="nplan" title="大计划无">★</i>':'';
   const chipsOf=s=>S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('');
   const cards=rows.map(s=>{
