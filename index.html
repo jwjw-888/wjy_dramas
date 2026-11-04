@@ -2075,8 +2075,11 @@ function epChart(rows){
   const SUR=n=>n==='祝阮/阮卿卿'?'卿':[...n][0];
   const col={},dark=new Set(),taken=new Set(),nb={};
   top.forEach(r=>nb[r]=new Set());eps.forEach(ep=>{const t=topOf(ep);t.forEach(x=>t.forEach(y=>{if(x!==y)nb[x].add(y)}))});
+  // 用户在图例上指定的颜色(2026-11-05 上传的图例图),固定不变;新出现的角色才用下面的算法挑色
+  const FIXED={'祝阮/阮卿卿':'#ff4fa3','陆封':'#00eaff','芈大丽':'#e7e600','王夫人':'#a3d900','段师爷':'#d35400','许妮子':'#6c5ce7','王珍珠':'#e8431c','程县令':'#58d68d','陆二':'#4b2e83','许婆婆':'#807284','孙媒氏':'#17b26a','夏玉尔':'#ff0000','程夫人':'#1e3a8a','兰老夫人':'#9acd32','沈心阳':'#2f6fed','赵丽华':'#ff9f1a','赵嬷嬷':'#26c6da','兰书亦':'#afa3f8','林鸢':'#a04000','不言':'#f0b27a','林招娣':'#8e44ad','明月/月娘':'#4eff00','金大郎':'#6b8e23','端王':'#f3c300','林母':'#b8e986','苏母':'#b5651d','真娘/蒲娘':'#d4a373','江梦吉':'#0b6e4f','张玉娘':'#c0392b','高大郎':'#c2b280','胡成才':'#7a5a2b'};
+  top.forEach(r=>{if(FIXED[r]){col[r]=FIXED[r];taken.add(FIXED[r]);if(lab(FIXED[r])[0]>=68)dark.add(FIXED[r])}});
   top.forEach(r=>{
-    if(r===PINK){col[r]='#ff4fa3';return}
+    if(col[r])return;
     const ref=[['#ff4fa3',1],['#7b7b86',1],...[...nb[r]].filter(x=>col[x]).map(x=>[col[x],1])];
     top.forEach(x=>{if(x!==r&&col[x]&&SUR(x)===SUR(r))ref.push([col[x],.45])}); // 同姓的角色:颜色要拉得特别开(差距按 .45 折算,等于要更远才算够)
     let best=null,bs=-1;PAL.forEach(c=>{if(taken.has(c))return;const adj=Math.min(...ref.map(([q,k])=>dE(c,q)*k));if(adj>bs){bs=adj;best=c}});
@@ -2089,7 +2092,8 @@ function epChart(rows){
     const rest=sum-parts.reduce((a,x)=>a+x.p,0);if(rest>0.0001)parts.push({n:'其他',p:rest,c:PIE_OTHER});
     return`<div class="eprow"><div class="eplab"><b>第${esc(ep)}集</b><small>${fmt(pages)} 页 · ${rs.length} 场</small></div><div class="epbar">${sum?parts.map(x=>{const pc=x.p/sum*100;return`<div style="flex:${x.p} 1 0;background:${x.c}${dark.has(x.c)?';color:#1b1b1f;text-shadow:none':''}" title="${esc(x.n)} ${fmt(x.p)} 页 · ${pc.toFixed(1)}%">${segLab(x.n,pc)}</div>`}).join(''):'<span style="color:#6f6c68;font-size:11px;padding:0 10px;line-height:26px">这一集还没有页数资料</span>'}</div></div>`;
   }).join('');
-  const leg=top.map(r=>`<span><i style="background:${col[r]}"></i>${esc(r)}</span>`).join('')+`<span><i style="background:${PIE_OTHER}"></i>其他</span>`;
+  const PRE=['祝阮/阮卿卿','陆封','夏玉尔','沈心阳','芈大丽']; // 图例里这五位固定排最前面,其他角色接在后面
+  const leg=[...PRE.filter(r=>col[r]),...top.filter(r=>!PRE.includes(r))].map(r=>`<span><i style="background:${col[r]}"></i>${esc(r)}</span>`).join('')+`<span><i style="background:${PIE_OTHER}"></i>其他</span>`;
   return`<div class="epc"><button class="pieback" type="button">← 返回长条图</button><h3>每集戏份分布(按页数)</h3><div class="note"><b>这张图怎么看</b><p>每一条是一集;条里各色块是各角色在这一集的页数占比(该角色页数 ÷ 这一集所有角色页数加总)。每一集只给页数最多的前 5 位角色上色(同一个角色颜色固定),其余角色合并成灰色。</p><p>色块越宽,代表那个角色在这一集的戏越重;鼠标移上去(手机长按)可以看到页数。左边的页数和场次数是这一集的实际总量。</p></div>
     <div class="epleg">${leg}</div>${segs}</div>`;
 }
