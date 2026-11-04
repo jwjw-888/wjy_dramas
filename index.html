@@ -2059,7 +2059,10 @@ function epChart(rows){
   if(!eps.length)return'<div class="epc"><button class="pieback" type="button">← 返回长条图</button><p class="hint">还没有场次资料。</p></div>';
   const tot={};rows.forEach(s=>S.roles.forEach(r=>{if(s.cast[r]===1)tot[r]=(tot[r]||0)+(num(s.pages)||0)}));
   // 每一集各自取戏份(页数)最多的前 5 位角色上色,其余一律灰色;同一个角色在每一集用同一个颜色
-  const NMIN=window.innerWidth<560?34:13; // 手机屏窄,色块够宽才写名字
+  const BARW=window.innerWidth<560?210:900; // 估算一条的宽度,按色块实际宽度决定写全名、姓氏+%、或只写姓氏
+  const segLab=(n,pc)=>{const w=pc/100*BARW,p=Math.round(pc)+'%',f=[...n][0];
+    if(n==='其他')return w>=60?n+' '+p:w>=17?p:'';
+    return w>=n.length*12+38?esc(n)+' '+p:w>=40?esc(f)+' '+p:w>=17?p:''}; // 百分比一律保留:放得下就写「名 %」→「姓 %」→只写 %
   const EPAL=['#d9b56c','#4fb3a9','#6a8ff0','#a07bd8','#e8884a','#8bc56b','#e36f6f','#5fc7e8','#c9a0dc','#f2c94c','#6fd1a0','#d4789b','#7aa2c8','#b5c26a','#ef9f76','#9a8cf0'];
   const perEp={};eps.forEach(ep=>{const per={};rows.filter(s=>s.ep===ep).forEach(s=>S.roles.forEach(r=>{if(s.cast[r]===1)per[r]=(per[r]||0)+(num(s.pages)||0)}));perEp[ep]=per});
   const topOf=ep=>Object.keys(perEp[ep]).filter(r=>perEp[ep][r]>0&&!/配角/.test(r)).sort((a,b)=>perEp[ep][b]-perEp[ep][a]||(tot[b]||0)-(tot[a]||0)).slice(0,5);
@@ -2082,7 +2085,7 @@ function epChart(rows){
     const per=perEp[ep],sum=Object.values(per).reduce((a,b)=>a+b,0),t5=topOf(ep);
     const parts=t5.map(r=>({n:r,p:per[r],c:col[r]}));
     const rest=sum-parts.reduce((a,x)=>a+x.p,0);if(rest>0.0001)parts.push({n:'其他',p:rest,c:PIE_OTHER});
-    return`<div class="eprow"><div class="eplab"><b>第${esc(ep)}集</b><small>${fmt(pages)} 页 · ${rs.length} 场</small></div><div class="epbar">${sum?parts.map(x=>{const pc=x.p/sum*100;return`<div style="flex:${x.p} 1 0;background:${x.c}${dark.has(x.c)?';color:#1b1b1f;text-shadow:none':''}" title="${esc(x.n)} ${fmt(x.p)} 页 · ${pc.toFixed(1)}%">${pc>=NMIN?esc(x.n)+' '+Math.round(pc)+'%':pc>=6?Math.round(pc)+'%':''}</div>`}).join(''):'<span style="color:#6f6c68;font-size:11px;padding:0 10px;line-height:26px">这一集还没有页数资料</span>'}</div></div>`;
+    return`<div class="eprow"><div class="eplab"><b>第${esc(ep)}集</b><small>${fmt(pages)} 页 · ${rs.length} 场</small></div><div class="epbar">${sum?parts.map(x=>{const pc=x.p/sum*100;return`<div style="flex:${x.p} 1 0;background:${x.c}${dark.has(x.c)?';color:#1b1b1f;text-shadow:none':''}" title="${esc(x.n)} ${fmt(x.p)} 页 · ${pc.toFixed(1)}%">${segLab(x.n,pc)}</div>`}).join(''):'<span style="color:#6f6c68;font-size:11px;padding:0 10px;line-height:26px">这一集还没有页数资料</span>'}</div></div>`;
   }).join('');
   const leg=top.map(r=>`<span><i style="background:${col[r]}"></i>${esc(r)}</span>`).join('')+`<span><i style="background:${PIE_OTHER}"></i>其他</span>`;
   return`<div class="epc"><button class="pieback" type="button">← 返回长条图</button><h3>每集戏份分布(按页数)</h3><div class="note"><b>这张图怎么看</b><p>每一条是一集;条里各色块是各角色在这一集的页数占比(该角色页数 ÷ 这一集所有角色页数加总)。每一集只给页数最多的前 5 位角色上色(同一个角色颜色固定),其余角色合并成灰色。</p><p>色块越宽,代表那个角色在这一集的戏越重;鼠标移上去(手机长按)可以看到页数。左边的页数和场次数是这一集的实际总量。</p></div>
