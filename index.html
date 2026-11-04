@@ -1966,7 +1966,7 @@ function render(){
   $('#pieBtn').hidden=tab!=='stats';$('#pieBtn').classList.toggle('on',PIE); // 圆饼图按钮只在「戏份占比」页出现
 }
 
-function npBar(){return`<div class="npbar"><label class="npleg"><input type="checkbox" id="fNp"${NPONLY?' checked':''}><i>⭐</i>已拍,但大计划没有的场次</label><label class="npleg"><input type="checkbox" id="fDf"${DFONLY?' checked':''}><i>🌀</i>只看和大计划有差异的场次</label></div>`}
+function npBar(){return`<div class="npbar"><label class="npleg"><input type="checkbox" id="fNp"${NPONLY?' checked':''}><i>⭐</i>已拍,但大计划没有的场次</label><label class="npleg"><input type="checkbox" id="fDf"${DFONLY?' checked':''}><i>♦️</i>只看和大计划有差异的场次</label></div>`}
 function bindNp(){
   const np=$('#fNp');if(np)np.onchange=()=>{NPONLY=np.checked;render()};
   const df=$('#fDf');if(df)df.onchange=()=>{DFONLY=df.checked;render()};
@@ -1975,7 +1975,7 @@ function renderScenes(rows){
   if(!rows.length){$('#vScenes').innerHTML=npBar()+'<div class="empty">没有符合的场次</div>';bindNp();return} // 空结果也要留着两个勾选,才能取消
   const tp=rows.reduce((a,s)=>a+(num(s.pages)||0),0);
   const pgOf=s=>num(s.pages)!==null?`${fmt(s.pages)}<small>页</small>`:esc(s.pnote||'');
-  const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff${DD.get(s.id).length===1&&DD.get(s.id)[0]===NEWTXT?' pl-new':''}">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)&&!NOP.has(s.ep+'|'+s.sc)?'<b class="dfx" title="和大计划有差异">🌀</b>':'';
+  const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff${DD.get(s.id).length===1&&DD.get(s.id)[0]===NEWTXT?' pl-new':''}">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)&&!NOP.has(s.ep+'|'+s.sc)?'<b class="dfx" title="和大计划有差异">♦️</b>':'';
   const NOP=new Set(PLAN?planAdded().map(x=>x.ep+'|'+x.sc):[]),npTag=s=>NOP.has(s.ep+'|'+s.sc)?'<i class="nplan" title="大计划无">⭐</i>':'';
   const chipsOf=s=>S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('');
   const cards=rows.map(s=>{
@@ -2314,7 +2314,7 @@ function schList(){
     ${meta?`<div class="m">${meta}</div>`:''}${(s.hint||s.act)?`<div class="hn">⚠ ${esc([s.hint,s.act].filter(Boolean).join(' · '))}</div>`:''}${s.summary?`<div class="t">${esc(cut(s.summary))}</div>`:''}
     ${s.cast.length?`<div class="c">${chips(s)}</div>`:''}</div>`};
   const trow=x=>{const s=x.s,d=s.add?{m:'',d:'',n:'',wk:''}:days[s.day],isShot=s.add||shot.has(s.ep+'|'+s.sc),night=/夜/.test(s.light||'');
-    return`<tr class="${isShot?'shotrow':''}${dfl(s)?' hasdiff':''}"><td class="c1">${s.add?esc(dm(s))+'<br><small>加戏</small>':d.m+'/'+d.d+'<br><small>DAY'+d.n+'</small>'}</td><td class="c2">${esc(s.ep)}</td><td>${esc(s.sc)}${dfl(s)?(s.add?'<b class="dfx" title="原大计划无">⭐</b>':'<b class="dfx" title="和实拍有差异">🌀</b>'):''}${isShot?'<i class="pl-shot">已拍</i>':''}</td><td class="${night?'ntc':''}">${esc(s.light||'')}</td><td>${esc(s.io||'')}</td><td>${esc(s.season||'')}</td><td class="wrap sm">${esc(cut(s.summary||''))}</td><td class="wrap">${chips(s)}</td><td class="num">${s.pages!=null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${esc(s.loc||'')}</td><td>${esc(s.region||'')}</td><td class="wrap">${esc(s.main||'')}</td><td class="wrap">${esc(s.sub||'')}</td><td class="wrap hn">${esc([s.hint,s.act].filter(Boolean).join(' · '))}</td><td class="wrap dfc">${dfHTML(s)}</td></tr>`};
+    return`<tr class="${isShot?'shotrow':''}${dfl(s)?' hasdiff':''}"><td class="c1">${s.add?esc(dm(s))+'<br><small>加戏</small>':d.m+'/'+d.d+'<br><small>DAY'+d.n+'</small>'}</td><td class="c2">${esc(s.ep)}</td><td>${esc(s.sc)}${dfl(s)?(s.add?'<b class="dfx" title="原大计划无">⭐</b>':'<b class="dfx" title="和实拍有差异">♦️</b>'):''}${isShot?'<i class="pl-shot">已拍</i>':''}</td><td class="${night?'ntc':''}">${esc(s.light||'')}</td><td>${esc(s.io||'')}</td><td>${esc(s.season||'')}</td><td class="wrap sm">${esc(cut(s.summary||''))}</td><td class="wrap">${chips(s)}</td><td class="num">${s.pages!=null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${esc(s.loc||'')}</td><td>${esc(s.region||'')}</td><td class="wrap">${esc(s.main||'')}</td><td class="wrap">${esc(s.sub||'')}</td><td class="wrap hn">${esc([s.hint,s.act].filter(Boolean).join(' · '))}</td><td class="wrap dfc">${dfHTML(s)}</td></tr>`};
   const head=SCOLS.map(([key,lab,cls])=>key==='cast'||key==='diff'?`<th>${lab}</th>`:`<th class="sortable${cls?' '+cls:''}${k===key?' sorted':''}" data-sk="${key}" title="点一下排序,再点一下反向">${lab}<i>${k===key?(dir>0?'▲':'▼'):''}</i></th>`).join('');
   $('#schList').innerHTML=rows.length?`<div class="pl-cards"><div class="pl-list">${rows.map(card).join('')}</div><div class="tot" style="color:var(--accent);font-size:13px;padding:10px 4px">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div>
   <div class="scroll mtable pl-tblwrap"><table class="pl-tbl"><thead><tr>${head}</tr></thead><tbody>${rows.map(trow).join('')}</tbody><tfoot><tr><th colspan="9" style="text-align:left">合计 ${rows.length} 场</th><th colspan="6" class="num" style="text-align:left">${fmt(tp)} 页</th></tr></tfoot></table></div>
