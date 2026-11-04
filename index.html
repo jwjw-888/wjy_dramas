@@ -2065,13 +2065,18 @@ function epChart(rows){
   const topOf=ep=>Object.keys(perEp[ep]).filter(r=>perEp[ep][r]>0&&!/配角/.test(r)).sort((a,b)=>perEp[ep][b]-perEp[ep][a]||(tot[b]||0)-(tot[a]||0)).slice(0,5);
   const used=new Set();eps.forEach(ep=>topOf(ep).forEach(r=>used.add(r)));
   const top=[...used].sort((a,b)=>(tot[b]||0)-(tot[a]||0));
-  // 每个角色一个专属颜色,全部不重复:用黄金角分散色相,再轮流变化亮度和饱和度;避开粉色(祝阮专用)和灰色(其他)
-  const col={},dark=new Set();let gi=0;
+  // 每个角色一个专属颜色,全部不重复:色盘里的颜色色相、明暗都拉得很开;排颜色时,同一集前 5 名里并排的角色尽量挑感觉差最大的色(CIELAB 色差),并避开粉色(祝阮专用)和灰色(其他)
+  const PAL=['#f3c300','#2f6fed','#e8431c','#17b26a','#8a3ffc','#00b8d9','#ff9f1a','#a3d900','#c0392b','#7ec8e3','#7a5a2b','#0b6e4f','#d4a373','#4b2e83','#b8e986','#ff7f6e','#1e3a8a','#c2b280','#00e0b0','#9b2d82','#ffd966','#5dade2','#a04000','#58d68d','#6c5ce7','#e5e500','#008b8b','#ff6b35','#3d85c6','#b5651d','#9acd32','#8e44ad','#f0b27a','#26c6da','#6b8e23','#d35400'];
+  const lab=h=>{const c=[1,3,5].map(i=>{let v=parseInt(h.slice(i,i+2),16)/255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)});const X=(c[0]*.4124+c[1]*.3576+c[2]*.1805)/.95047,Y=c[0]*.2126+c[1]*.7152+c[2]*.0722,Z=(c[0]*.0193+c[1]*.1192+c[2]*.9505)/1.08883,f=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;return[116*f(Y)-16,500*(f(X)-f(Y)),200*(f(Y)-f(Z))]};
+  const dE=(p,q)=>{const a=lab(p),b=lab(q);return Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])};
+  const col={},dark=new Set(),taken=new Set(),nb={};
+  top.forEach(r=>nb[r]=new Set());eps.forEach(ep=>{const t=topOf(ep);t.forEach(x=>t.forEach(y=>{if(x!==y)nb[x].add(y)}))});
   top.forEach(r=>{
     if(r===PINK){col[r]='#ff4fa3';return}
-    let h;do{h=(gi*137.508+20)%360;gi++}while(h>285&&h<356);
-    const L=[62,52,72,44][gi%4],S=[72,85,62,78][gi%4];
-    col[r]=`hsl(${h.toFixed(0)},${S}%,${L}%)`;if(L>=70||(h>=45&&h<=175&&L>=52))dark.add(col[r])});
+    const ref=['#ff4fa3','#7b7b86',...[...nb[r]].filter(x=>col[x]).map(x=>col[x])];
+    let best=null,bs=-1;PAL.forEach(c=>{if(taken.has(c))return;const sc=Math.min(...ref.map(q=>dE(c,q)));if(sc>bs){bs=sc;best=c}});
+    if(!best)best=PAL[Object.keys(col).length%PAL.length];
+    taken.add(best);col[r]=best;if(lab(best)[0]>=68)dark.add(best)});
   const segs=eps.map(ep=>{
     const rs=rows.filter(s=>s.ep===ep),pages=rs.reduce((a,s)=>a+(num(s.pages)||0),0);
     const per=perEp[ep],sum=Object.values(per).reduce((a,b)=>a+b,0),t5=topOf(ep);
