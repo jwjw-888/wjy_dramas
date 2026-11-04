@@ -2191,6 +2191,7 @@ const _sim=(a,b)=>{a=_nz(a);b=_nz(b);if(!a||!b)return 1;if(a.includes(b)||b.incl
 function sameScene(d,ps){
   if(String(d.ep)!==String(ps.ep))return false;
   if(String(d.sc)===String(ps.sc))return true;
+  if(/^\d+$/.test(String(d.sc))&&String(ps.sc)===String(d.sc)+'A')return true; // 场次表的 23场 = 日程表的 23A(内容同、页数可能不同;23B 仍是另一场)
   if(!/^\d+$/.test(String(ps.sc))||_nb(d.sc)!==String(ps.sc))return false;
   return true; // 日程表的 4场 → 场次表的 4A、4B:算同一场拆开拍,不算加戏
 }
@@ -2219,7 +2220,8 @@ function planDiff(){
     if(!ms.length)return null;
     IDS.set(pk,ms.map(d=>d.id));
     const out=[];
-    if(split)out.push('拆成 '+ms.length+' 场戏:'+ms.map(d=>d.sc+'场'+(num(d.pages)!==null?' '+fmt(num(d.pages))+'页':'')+(d.summary?'「'+cut(d.summary.replace(/【[^】]*】/g,''))+'」':'')).join('、'));
+    if(split&&ms.length===1&&String(ms[0].sc)!==String(ps.sc))out.push('场号:日程 '+ps.sc+' → 实拍 '+ms[0].sc);
+    else if(split)out.push('拆成 '+ms.length+' 场戏:'+ms.map(d=>d.sc+'场'+(num(d.pages)!==null?' '+fmt(num(d.pages))+'页':'')+(d.summary?'「'+cut(d.summary.replace(/【[^】]*】/g,''))+'」':'')).join('、'));
     const dd=days[ps.day],dts=[];
     ms.forEach(d=>{[...String(d.date||'').matchAll(/(\d+)\D+?(\d+)/g)].forEach(q=>{if(dd&&(+q[1]!==dd.m||+q[2]!==dd.d)){const t=+q[1]+'/'+ +q[2];if(!dts.includes(t))dts.push(t)}})});
     if(dts.length)out.push('拍摄日期:日程 '+dd.m+'/'+dd.d+' → 实拍 '+dts.join('、'));
