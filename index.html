@@ -2188,9 +2188,11 @@ function renderSched(box){
 const _nb=x=>{const q=/^(\d+)[A-Z]?$/.exec(String(x));return q?q[1]:null};
 const _nz=t=>toSimp(String(t||'').replace(/【[^】]*】?/g,'').replace(/[\s\p{P}\p{S}]/gu,''));
 const _sim=(a,b)=>{a=_nz(a);b=_nz(b);if(!a||!b)return 1;if(a.includes(b)||b.includes(a))return 1;const g=t=>{const o=new Set();for(let i=0;i<t.length-1;i++)o.add(t.slice(i,i+2));return o},A=g(a),B=g(b);if(!A.size||!B.size)return 1;let c=0;A.forEach(x=>{if(B.has(x))c++});return 2*c/(A.size+B.size)};
+const SAME_MANUAL=[['20','21','19']]; // 用户指定:[集, 场次表场号, 日程表场号] 内容相同、拍摄时改了场号(20集19→21:乔装货郎盯梢)
 function sameScene(d,ps){
   if(String(d.ep)!==String(ps.ep))return false;
   if(String(d.sc)===String(ps.sc))return true;
+  if(SAME_MANUAL.some(m=>m[0]===String(d.ep)&&m[1]===String(d.sc)&&m[2]===String(ps.sc)))return true;
   if(/^\d+$/.test(String(d.sc))&&String(ps.sc)===String(d.sc)+'A')return true; // 场次表的 23场 = 日程表的 23A(内容同、页数可能不同;23B 仍是另一场)
   if(!/^\d+$/.test(String(ps.sc))||_nb(d.sc)!==String(ps.sc))return false;
   return true; // 日程表的 4场 → 场次表的 4A、4B:算同一场拆开拍,不算加戏
