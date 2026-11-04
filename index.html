@@ -1966,8 +1966,13 @@ function render(){
   $('#pieBtn').hidden=tab!=='stats';$('#pieBtn').classList.toggle('on',PIE); // 圆饼图按钮只在「戏份占比」页出现
 }
 
+function npBar(){return`<div class="npbar"><label class="npleg"><input type="checkbox" id="fNp"${NPONLY?' checked':''}><i>★</i>已拍,但大计划没有的场次</label><label class="npleg"><input type="checkbox" id="fDf"${DFONLY?' checked':''}><i>！</i>只看和大计划有差异的场次</label></div>`}
+function bindNp(){
+  const np=$('#fNp');if(np)np.onchange=()=>{NPONLY=np.checked;render()};
+  const df=$('#fDf');if(df)df.onchange=()=>{DFONLY=df.checked;render()};
+}
 function renderScenes(rows){
-  if(!rows.length){$('#vScenes').innerHTML='<div class="empty">没有符合的场次</div>';return}
+  if(!rows.length){$('#vScenes').innerHTML=npBar()+'<div class="empty">没有符合的场次</div>';bindNp();return} // 空结果也要留着两个勾选,才能取消
   const tp=rows.reduce((a,s)=>a+(num(s.pages)||0),0);
   const pgOf=s=>num(s.pages)!==null?`${fmt(s.pages)}<small>页</small>`:esc(s.pnote||'');
   const DD=PLAN?dbDiff():new Map(),ddHTML=s=>DD.has(s.id)?`<div class="pl-diff${DD.get(s.id).length===1&&DD.get(s.id)[0]===NEWTXT?' pl-new':''}">${DD.get(s.id).map(esc).join('<br>')}</div>`:'',ddMark=s=>DD.has(s.id)&&!NOP.has(s.ep+'|'+s.sc)?'<b class="dfx">！</b>':'';
@@ -1976,11 +1981,10 @@ function renderScenes(rows){
   const cards=rows.map(s=>{
     const meta=[s.light,s.place,s.main,s.sub].filter(Boolean).map(esc).join(' · '),cast=chipsOf(s);
     return`<div class="sc-card${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><div class="h">${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}<b>${esc(s.date)}</b><span>第${esc(s.ep)}集 · ${esc(s.sc)}场${npTag(s)}${ddMark(s)}</span><em>${pgOf(s)}</em></div>${ddHTML(s)}${meta?`<div class="m">${meta}</div>`:''}${s.summary?`<div class="t">${esc(cut(s.summary))}</div>`:''}${s.photo?`<img class="sc-photo" src="${phSrc(s.photo)}" alt="现场照片" loading="lazy">`:''}${cast?`<div class="c">${cast}</div>`:''}</div>`}).join('');
-  $('#vScenes').innerHTML=`<div class="npbar"><label class="npleg"><input type="checkbox" id="fNp"${NPONLY?' checked':''}><i>★</i>已拍,但大计划没有的场次</label><label class="npleg"><input type="checkbox" id="fDf"${DFONLY?' checked':''}><i>！</i>只看和大计划有差异的场次</label></div><div class="mcards">${cards}<div class="tot">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div><div class="mtable"><table><thead><tr>${sortHead()}</tr></thead><tbody>`+
+  $('#vScenes').innerHTML=`${npBar()}<div class="mcards">${cards}<div class="tot">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div><div class="mtable"><table><thead><tr>${sortHead()}</tr></thead><tbody>`+
   rows.map(s=>`<tr class="row${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><td>${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}${esc(s.date).replace('/','/<br>')}</td><td>${s.ep}</td><td>${esc(s.sc)}${npTag(s)}${ddMark(s)}</td><td>${esc(s.light)}</td><td>${esc(s.place)}</td><td class="wrap">${esc(cut(s.main))}</td><td class="wrap">${esc(cut(s.sub))}</td><td class="wrap">${esc(cut(s.summary))}</td><td class="num">${num(s.pages)!==null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('')}</td><td class="wrap dfc">${ddHTML(s)}</td></tr>`).join('')+
   `</tbody><tfoot><tr><th colspan="8">合计 ${rows.length} 场</th><th class="num">${fmt(tp)}</th><th></th><th></th></tr></tfoot></table></div><p class="hint hintTable">点任一场可查看完整资讯${ADMIN?',并可在窗口里编辑':''}。</p>${ADMIN?'<p class="hint hintCard">点任一张卡片即可编辑。</p>':''}`;
-  const np=$('#fNp');if(np)np.onchange=()=>{NPONLY=np.checked;render()};
-  const df=$('#fDf');if(df)df.onchange=()=>{DFONLY=df.checked;render()};
+  bindNp();
   document.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;SORT=SORT.key===k?{key:k,dir:-SORT.dir}:{key:k,dir:1};render()});
   document.querySelectorAll('.sc-photo').forEach(im=>im.onclick=e=>{e.stopPropagation();showBig(im.getAttribute('src'))}); // 卡片上点图片看大图
