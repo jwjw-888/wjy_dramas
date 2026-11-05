@@ -2236,10 +2236,12 @@ const _nb=x=>{const q=/^(\d+)[A-Z]?$/.exec(String(x));return q?q[1]:null};
 const _nz=t=>toSimp(String(t||'').replace(/【[^】]*】?/g,'').replace(/[\s\p{P}\p{S}]/gu,''));
 const _sim=(a,b)=>{a=_nz(a);b=_nz(b);if(!a||!b)return 1;if(a.includes(b)||b.includes(a))return 1;const g=t=>{const o=new Set();for(let i=0;i<t.length-1;i++)o.add(t.slice(i,i+2));return o},A=g(a),B=g(b);if(!A.size||!B.size)return 1;let c=0;A.forEach(x=>{if(B.has(x))c++});return 2*c/(A.size+B.size)};
 const SAME_MANUAL=[['20','21','19']]; // 用户指定:[集, 场次表场号, 日程表场号] 内容相同、拍摄时改了场号(20集19→21:乔装货郎盯梢)
+const MERGED=[['14','23','23B']]; // 用户指定:日程表 14集23A、23B 实拍合并成 23场(23A 走下面的 A 规则)
 function sameScene(d,ps){
   if(String(d.ep)!==String(ps.ep))return false;
   if(String(d.sc)===String(ps.sc))return true;
   if(SAME_MANUAL.some(m=>m[0]===String(d.ep)&&m[1]===String(d.sc)&&m[2]===String(ps.sc)))return true;
+  if(MERGED.some(m=>m[0]===String(d.ep)&&m[1]===String(d.sc)&&m[2]===String(ps.sc)))return true;
   if(/^\d+$/.test(String(d.sc))&&String(ps.sc)===String(d.sc)+'A')return true; // 场次表的 23场 = 日程表的 23A(内容同、页数可能不同;23B 仍是另一场)
   if(!/^\d+$/.test(String(ps.sc))||_nb(d.sc)!==String(ps.sc))return false;
   return true; // 日程表的 4场 → 场次表的 4A、4B:算同一场拆开拍,不算加戏
@@ -2269,18 +2271,21 @@ function planDiff(){
     if(!ms.length){ms=S.scenes.filter(d=>sameScene(d,ps));split=true}
     if(!ms.length)return null;
     IDS.set(pk,ms.map(d=>d.id));
-    const out=[];
-    if(split&&ms.length===1&&String(ms[0].sc)!==String(ps.sc))out.push('场号:日程 '+ps.sc+' → 实拍 '+ms[0].sc);
+    const out=[],mg=split&&ms.length===1?MERGED.find(m=>m[0]===String(ps.ep)&&m[1]===String(ms[0].sc)&&(ps.sc===m[2]||ps.sc===m[1]+'A')):null,
+      mgp=mg?P.scenes.filter(q=>q.ep===ps.ep&&(q.sc===mg[2]||q.sc===mg[1]+'A')):null;
+    if(mg)out.push('合并:日程 '+mgp.map(q=>q.sc).sort().join('+')+' → 实拍 '+mg[1]+'场');
+    else if(split&&ms.length===1&&String(ms[0].sc)!==String(ps.sc))out.push('场号:日程 '+ps.sc+' → 实拍 '+ms[0].sc);
     else if(split)out.push('拆成 '+ms.length+' 场戏:'+ms.map(d=>d.sc+'场'+(num(d.pages)!==null?' '+fmt(num(d.pages))+'页':'')+(d.summary?'「'+cut(d.summary.replace(/【[^】]*】/g,''))+'」':'')).join('、'));
     const dd=days[ps.day],dts=[];
     ms.forEach(d=>{[...String(d.date||'').matchAll(/(\d+)\D+?(\d+)/g)].forEach(q=>{if(dd&&(+q[1]!==dd.m||+q[2]!==dd.d)){const t=+q[1]+'/'+ +q[2];if(!dts.includes(t))dts.push(t)}})});
     if(dts.length)out.push('拍摄日期:日程 '+dd.m+'/'+dd.d+' → 实拍 '+dts.join('、'));
     const dp=ms.map(d=>num(d.pages));
-    if(dp.every(v=>v!==null)&&ps.pages!=null){const t=Math.round(dp.reduce((a,v)=>a+v,0)*100)/100;if(Math.abs(t-ps.pages)>0.001)out.push('页数:日程 '+fmt(ps.pages)+' → 实拍 '+fmt(t)+(ms.length>1?'('+dp.map(fmt).join('+')+')':''))}
+    const pp=mg?Math.round(mgp.reduce((a,q)=>a+(q.pages||0),0)*100)/100:ps.pages;
+    if(dp.every(v=>v!==null)&&pp!=null){const t=Math.round(dp.reduce((a,v)=>a+v,0)*100)/100;if(Math.abs(t-pp)>0.001)out.push('页数:日程 '+fmt(pp)+' → 实拍 '+fmt(t)+(ms.length>1?'('+dp.map(fmt).join('+')+')':''))}
     const dc=new Set();ms.forEach(d=>S.roles.forEach(r=>{if(d.cast[r]===1)dc.add(r)}));
     const tracked=P.roles;
     const uq=(ps.unsure||[]).filter(r=>ps.cast.includes(r)); // 日程表上标「？」的角色:到时候有拍或没拍都要注记
-    const miss=tracked.filter(r=>ps.cast.includes(r)&&!dc.has(r)&&!uq.includes(r)),extra=tracked.filter(r=>dc.has(r)&&!ps.cast.includes(r));
+    const pcast=mg?[...new Set(mgp.flatMap(q=>q.cast))]:ps.cast,miss=tracked.filter(r=>pcast.includes(r)&&!dc.has(r)&&!uq.includes(r)),extra=tracked.filter(r=>dc.has(r)&&!pcast.includes(r));
     const uyes=uq.filter(r=>dc.has(r)),uno=uq.filter(r=>!dc.has(r));
     if(uyes.length)out.push('日程标「？」的 '+uyes.join('、')+':实拍有拍到');
     if(uno.length)out.push('日程标「？」的 '+uno.join('、')+':实拍没有');
