@@ -2226,6 +2226,91 @@
     "蒲父": 1,
     "蔡氏": 1
    }
+  },
+  {
+   "id": 121,
+   "date": "11.6",
+   "ep": 23,
+   "sc": "7",
+   "light": "深秋",
+   "place": "太平县",
+   "main": "县衙",
+   "sub": "书房【改案牍库",
+   "summary": "卿提议修女子善堂",
+   "pages": 0.7,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "段师爷": 1,
+    "明月/月娘": 1
+   }
+  },
+  {
+   "id": 122,
+   "date": "11.6",
+   "ep": 24,
+   "sc": "6",
+   "light": "深秋",
+   "place": "太平县",
+   "main": "县衙",
+   "sub": "公堂",
+   "summary": "公堂开审掠卖案",
+   "pages": 1.45,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "程县令": 1,
+    "段师爷": 1,
+    "真娘/蒲娘": 1,
+    "明月/月娘": 1,
+    "金大郎": 1,
+    "黄灯/小黄灯": 1
+   }
+  },
+  {
+   "id": 123,
+   "date": "11.6",
+   "ep": 24,
+   "sc": "8",
+   "light": "深秋",
+   "place": "太平县",
+   "main": "县衙",
+   "sub": "公堂",
+   "summary": "【接24-6】公堂宣判蒲小娥",
+   "pages": 1.25,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "芈大丽": 1,
+    "陆二": 1,
+    "程县令": 1,
+    "段师爷": 1,
+    "蒲大郎": 1,
+    "蒲父": 1,
+    "蔡氏": 1,
+    "真娘/蒲娘": 1,
+    "明月/月娘": 1,
+    "金大郎": 1,
+    "黄灯/小黄灯": 1
+   }
+  },
+  {
+   "id": 124,
+   "date": "11.6",
+   "ep": 24,
+   "sc": "9",
+   "light": "深秋",
+   "place": "太平县",
+   "main": "县衙",
+   "sub": "公堂外廊下",
+   "summary": "蔡氏休夫绝交",
+   "pages": 0.25,
+   "pnote": "",
+   "cast": {
+    "蒲大郎": 1,
+    "蔡氏": 1
+   }
   }
  ],
  "sec": "i130XMVZ2kv6lkw4Zr6h6/r4RtrbFW35dNeWopf4VgqPW5BqivrRON5XK9ZBCOqpDOOA7BTaYUlHfksEAQBpr5nR/1ffU1LdpDKB+6ulBmOoLdUTmzPzeKqSVwT1PtsprqFyi/BOExkyqvfvvN2c4Mb04dCAY0WjFGJMOcK3cUUh++H9W05gv+Q="
