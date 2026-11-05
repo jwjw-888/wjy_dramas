@@ -2273,7 +2273,7 @@ function planDiff(){
     IDS.set(pk,ms.map(d=>d.id));
     const out=[],mg=split&&ms.length===1?MERGED.find(m=>m[0]===String(ps.ep)&&m[1]===String(ms[0].sc)&&(ps.sc===m[2]||ps.sc===m[1]+'A')):null,
       mgp=mg?P.scenes.filter(q=>q.ep===ps.ep&&(q.sc===mg[2]||q.sc===mg[1]+'A')):null;
-    if(mg)out.push('合并:日程 '+mgp.map(q=>q.sc).sort().join('+')+' → 实拍 '+mg[1]+'场');
+    if(mg)out.push('日程 '+mgp.map(q=>q.sc).sort().join('、')+' 实拍合并成 '+mg[1]+'场');
     else if(split&&ms.length===1&&String(ms[0].sc)!==String(ps.sc))out.push('场号:日程 '+ps.sc+' → 实拍 '+ms[0].sc);
     else if(split)out.push('拆成 '+ms.length+' 场戏:'+ms.map(d=>d.sc+'场'+(num(d.pages)!==null?' '+fmt(num(d.pages))+'页':'')+(d.summary?'「'+cut(d.summary.replace(/【[^】]*】/g,''))+'」':'')).join('、'));
     const dd=days[ps.day],dts=[];
