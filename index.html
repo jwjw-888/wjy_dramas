@@ -366,7 +366,7 @@ body.mview .hintCard{display:block}
 .pl-card .h em{margin-left:auto;font-style:normal;font:600 18px/1 "Songti SC","Noto Serif CJK SC",serif;color:#f3ecd9}
 .pl-card .h small{font:400 11px sans-serif;color:var(--mute);margin-left:2px}
 .ckgrp{display:flex;flex-direction:column;gap:2px;flex:none}.diffck b{font-weight:600;color:var(--accent,#e8c47a);margin-left:4px;font-size:12px}.diffck{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;white-space:nowrap;flex:none;margin-top:4px;padding:0 4px;color:var(--text,inherit);font-size:13px}.diffck input{width:auto!important;height:auto!important;margin:0}
-.pl-tbl .pl-diff{min-width:150px;margin-top:5px}.pl-diff.pl-over{background:rgba(212,160,60,.16);color:#f0c674}.pl-diff.pl-new{background:#708069;color:#fff}.pl-diff{margin-top:6px;padding:5px 8px;border-radius:6px;background:rgba(248,113,113,.15);color:#fca5a5;font-size:12px;line-height:1.5;font-weight:600;white-space:normal}
+.pl-tbl .pl-diff{min-width:150px;margin-top:5px}.pl-diff.pl-over{background:#007979;color:#fff}.pl-diff.pl-new{background:#708069;color:#fff}.pl-diff{margin-top:6px;padding:5px 8px;border-radius:6px;background:rgba(248,113,113,.15);color:#fca5a5;font-size:12px;line-height:1.5;font-weight:600;white-space:normal}
 .pl-shot{font-style:normal;font-size:11px;padding:0 6px;border-radius:4px;background:rgba(80,190,160,.18);border:1px solid rgba(80,190,160,.5);color:#b0ead8}
 .pl-card .tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
 .pl-tag{font-size:12px;padding:0 7px;border-radius:4px;border:1px solid #3a3a43;color:#cfcac0}
@@ -2293,9 +2293,7 @@ function planDiff(){
     if(!shot.has(ps.ep+'|'+ps.sc)){ // 还没拍:日程日期已经过了、场次表还没有这场 → 过期未拍(取消?顺延?);将来拍了,就改归「和大计划有差异」
       const u=(ps.unsure||[]).filter(r=>ps.cast.includes(r)),d=days[ps.day];
       if(!(d&&(d.m-1)*100+d.d<today))return null;
-      const o=['日程日期('+d.m+'/'+d.d+')已过,场次表还没有这场:取消?顺延?'];
-      if(u.length)o.push('日程标「？」的 '+u.join('、')+':有没有拍还不知道');
-      return o}
+      return['未拍（取消?顺延?）']}
     const o=diffOf(ps);return o&&o.length?o:null};
   const over=ps=>!ps.add&&!shot.has(ps.ep+'|'+ps.sc)&&!!dfl(ps); // 过期未拍
   const dfHTML=ps=>{const o=dfl(ps);return o?`<div class="pl-diff${o.length===1&&o[0]===NEWTXT?' pl-new':''}${over(ps)?' pl-over':''}">${o.map(esc).join('<br>')}</div>`:''};
