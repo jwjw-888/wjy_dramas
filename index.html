@@ -210,6 +210,7 @@ b.rolelink::after{content:" ›";color:var(--accent);font-weight:400}
 @media(max-width:520px){.rrow{grid-template-columns:84px 1fr 52px}.rrow .sm{grid-column:1/-1}}
 .epc{margin-top:18px}
 .epc h3{margin:0 0 4px;font:600 16px "Songti SC","Noto Serif CJK SC",serif;color:#f3ecd9;letter-spacing:.1em}
+.eprow{cursor:pointer}#epBarDlg{width:min(720px,94vw);padding:18px}.ebh{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}.ebh b{font-size:18px}.ebh small{color:var(--mute);flex:1}.ebx{background:#24242b;color:var(--ink);border:1px solid #3a3a43;border-radius:8px;padding:5px 12px}.ebbar{display:flex;height:58px;border-radius:8px;overflow:hidden;background:#101014}.ebbar div{display:flex;flex-direction:column;align-items:center;justify-content:center;font:600 13px/1.25 sans-serif;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);overflow:hidden;white-space:nowrap;border-right:1px solid #17171c}.ebbar div span:last-child{font-size:11px;font-weight:500}.ebl{margin-top:12px}.ebr{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:14px;border-bottom:1px solid #26262d}.ebr i{width:12px;height:12px;border-radius:3px;flex:none}.ebr b{flex:1}.ebr span{color:var(--mute);font-size:13px}.ebm{color:var(--mute);font-size:12px;line-height:1.7;padding:6px 0 0 20px}
 .epleg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 10px;font-size:12.5px;color:var(--ink)}
 .epleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .eprow{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center;padding:5px 0}
@@ -2058,6 +2059,21 @@ document.addEventListener('click',e=>{ // 抢在表格「点整行」之前处�
   openRole(t.dataset.role);
 },true);
 /* 每集戏份分布:每集一条横条,按角色页数占比分段(颜色和圆饼图一致) */
+let EPD=null;
+function openEpBar(ep){
+  if(!EPD)return;const {perEp,col,dark,topOf,rows}=EPD,per=perEp[ep]||{},sum=Object.values(per).reduce((a,b)=>a+b,0),t5=topOf(+ep)||topOf(ep);
+  const rs=rows.filter(s=>String(s.ep)===String(ep)),pages=rs.reduce((a,s)=>a+(num(s.pages)||0),0);
+  const t5k=Object.keys(per).filter(r=>per[r]>0&&!/配角/.test(r)).sort((a,b)=>per[b]-per[a]).slice(0,5),rest=Object.keys(per).filter(r=>per[r]>0&&!t5k.includes(r)).sort((a,b)=>per[b]-per[a]);
+  const BW=Math.min(720,window.innerWidth*.94)-50,sur=n=>n==='祝阮/阮卿卿'?'卿':[...n][0];
+  const lab=(n,pc)=>{const w=pc/100*BW,p=Math.round(pc)+'%';if(n==='其他')return w>=40?`<span>${n}</span><span>${p}</span>`:'';return w>=n.length*13+10?`<span>${esc(n)}</span><span>${p}</span>`:w>=14?`<span>${esc(sur(n))}</span><span>${p}</span>`:''};
+  const parts=t5k.map(r=>({n:r,p:per[r],c:col[r]}));const rsum=rest.reduce((a,r)=>a+per[r],0);if(rsum>0.0001)parts.push({n:'其他',p:rsum,c:PIE_OTHER});
+  const bar=sum?parts.map(x=>{const pc=x.p/sum*100;return`<div style="flex:${x.p} 1 0;background:${x.c}${dark.has(x.c)?';color:#1b1b1f;text-shadow:none':''}">${lab(x.n,pc)}</div>`}).join(''):'<span class="hint" style="padding:0 12px">这一集还没有页数资料</span>';
+  const row=(r,c)=>`<div class="ebr"><i style="background:${c}"></i><b>${esc(r)}</b><span>${fmt(per[r])} 页 · ${(per[r]/sum*100).toFixed(1)}%</span></div>`;
+  let d=$('#epBarDlg');if(!d){d=document.createElement('dialog');d.id='epBarDlg';document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target===d)d.close()})}
+  d.innerHTML=`<div class="ebh"><b>第${esc(ep)}集</b><small>${fmt(pages)} 页 · ${rs.length} 场</small><button type="button" class="ebx">关闭</button></div><div class="ebbar">${bar}</div>${sum?`<div class="ebl">${t5k.map(r=>row(r,col[r])).join('')}${rest.length?`<div class="ebr ebo"><i style="background:${PIE_OTHER}"></i><b>其他 ${rest.length} 位</b><span>${fmt(rsum)} 页 · ${(rsum/sum*100).toFixed(1)}%</span></div><div class="ebm">${rest.map(r=>esc(r)+' '+fmt(per[r])).join(' · ')}</div>`:''}</div>`:''}`;
+  d.querySelector('.ebx').onclick=()=>d.close();d.showModal();
+}
+document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('.eprow');if(r&&r.dataset.ep)openEpBar(r.dataset.ep)});
 function epChart(rows){
   const eps=uniq(rows.map(s=>s.ep)).sort((a,b)=>a-b);
   if(!eps.length)return'<div class="epc"><button class="pieback" type="button">← 返回长条图</button><p class="hint">还没有场次资料。</p></div>';
@@ -2094,11 +2110,12 @@ function epChart(rows){
     const per=perEp[ep],sum=Object.values(per).reduce((a,b)=>a+b,0),t5=topOf(ep);
     const parts=t5.map(r=>({n:r,p:per[r],c:col[r]}));
     const rest=sum-parts.reduce((a,x)=>a+x.p,0);if(rest>0.0001)parts.push({n:'其他',p:rest,c:PIE_OTHER});
-    return`<div class="eprow"><div class="eplab"><b>第${esc(ep)}集</b><small>${fmt(pages)} 页 · ${rs.length} 场</small></div><div class="epbar">${sum?parts.map(x=>{const pc=x.p/sum*100;return`<div style="flex:${x.p} 1 0;background:${x.c}${dark.has(x.c)?';color:#1b1b1f;text-shadow:none':''}" title="${esc(x.n)} ${fmt(x.p)} 页 · ${pc.toFixed(1)}%">${segLab(x.n,pc)}</div>`}).join(''):'<span style="color:#6f6c68;font-size:11px;padding:0 10px;line-height:26px">这一集还没有页数资料</span>'}</div></div>`;
+    return`<div class="eprow" data-ep="${esc(ep)}" title="点一下放大看是哪些角色"><div class="eplab"><b>第${esc(ep)}集</b><small>${fmt(pages)} 页 · ${rs.length} 场</small></div><div class="epbar">${sum?parts.map(x=>{const pc=x.p/sum*100;return`<div style="flex:${x.p} 1 0;background:${x.c}${dark.has(x.c)?';color:#1b1b1f;text-shadow:none':''}" title="${esc(x.n)} ${fmt(x.p)} 页 · ${pc.toFixed(1)}%">${segLab(x.n,pc)}</div>`}).join(''):'<span style="color:#6f6c68;font-size:11px;padding:0 10px;line-height:26px">这一集还没有页数资料</span>'}</div></div>`;
   }).join('');
   const PRE=['祝阮/阮卿卿','陆封','夏玉尔','沈心阳','芈大丽']; // 图例里这五位固定排最前面,其他角色接在后面
+  EPD={perEp,col,dark,topOf,rows,SUR};
   const leg=[...PRE.filter(r=>col[r]),...top.filter(r=>!PRE.includes(r))].map(r=>`<span><i style="background:${col[r]}"></i>${esc(r)}</span>`).join('')+`<span><i style="background:${PIE_OTHER}"></i>其他</span>`;
-  return`<div class="epc"><button class="pieback" type="button">← 返回长条图</button><h3>每集戏份分布(按页数)</h3><div class="note"><b>这张图怎么看</b><p>每一条是一集;条里各色块是各角色在这一集的页数占比(该角色页数 ÷ 这一集所有角色页数加总)。每一集只给页数最多的前 5 位角色上色(同一个角色颜色固定),其余角色合并成灰色。</p><p>色块越宽,代表那个角色在这一集的戏越重;鼠标移上去(手机长按)可以看到页数。左边的页数和场次数是这一集的实际总量。</p></div>
+  return`<div class="epc"><button class="pieback" type="button">← 返回长条图</button><h3>每集戏份分布(按页数)</h3><div class="note"><b>这张图怎么看</b><p>每一条是一集;条里各色块是各角色在这一集的页数占比(该角色页数 ÷ 这一集所有角色页数加总)。每一集只给页数最多的前 5 位角色上色(同一个角色颜色固定),其余角色合并成灰色。</p><p>色块越宽,代表那个角色在这一集的戏越重;鼠标移上去(手机长按)可以看到页数。左边的页数和场次数是这一集的实际总量。点任一集的长条,可以放大看每位角色的名字。</p></div>
     <div class="epleg">${leg}</div>${segs}</div>`;
 }
 document.addEventListener('click',e=>{if(e.target.closest('.coback')){COV=false;CV=false;SCH=false;render()}});
