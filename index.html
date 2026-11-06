@@ -368,7 +368,7 @@ body.mview .hintCard{display:block}
 .ckgrp{display:flex;flex-direction:column;gap:2px;flex:none}.diffck b{font-weight:600;color:var(--accent,#e8c47a);margin-left:4px;font-size:12px}.diffck{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;white-space:nowrap;flex:none;margin-top:4px;padding:0 4px;color:var(--text,inherit);font-size:13px}.diffck input{width:auto!important;height:auto!important;margin:0}
 .pl-tbl .pl-diff{min-width:150px;margin-top:5px}.pl-diff.pl-over{background:#007979;color:#fff}.pl-diff.pl-new{background:#708069;color:#fff}.pl-diff{margin-top:6px;padding:5px 8px;border-radius:6px;background:rgba(248,113,113,.15);color:#fca5a5;font-size:12px;line-height:1.5;font-weight:600;white-space:normal}
 .pl-shot{font-style:normal;font-size:11px;padding:0 6px;border-radius:4px;background:rgba(80,190,160,.18);border:1px solid rgba(80,190,160,.5);color:#b0ead8}
-.pl-card .tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
+.pl-card .tags,.sc-card .tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
 .pl-tag{font-size:12px;padding:0 7px;border-radius:4px;border:1px solid #3a3a43;color:#cfcac0}
 .pl-tag.dt{color:var(--mute)}.pl-tag.nt{background:#1b2b52;border-color:#4a6bb8;color:#cfe0ff}.pl-tag.dy{background:rgba(217,181,108,.14);border-color:rgba(217,181,108,.45);color:#f0d9a0}
 .pl-card .m{margin-top:6px;font-size:12.5px;color:var(--mute)}
@@ -1980,8 +1980,9 @@ function renderScenes(rows){
   const NOP=new Set(PLAN?planAdded().map(x=>x.ep+'|'+x.sc):[]),npTag=s=>NOP.has(s.ep+'|'+s.sc)?'<i class="nplan" title="大计划无">⭐</i>':'';
   const chipsOf=s=>S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('');
   const cards=rows.map(s=>{
-    const meta=[lnOf(s),s.light,s.place,s.main,s.sub].filter(Boolean).map(esc).join(' · '),cast=chipsOf(s);
-    return`<div class="sc-card${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><div class="h">${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}<b>${esc(s.date)}</b><span>第${esc(s.ep)}集 · ${esc(s.sc)}场${npTag(s)}${ddMark(s)}</span><em>${pgOf(s)}</em></div>${ddHTML(s)}${meta?`<div class="m">${meta}</div>`:''}${s.summary?`<div class="t">${esc(cut(s.summary))}</div>`:''}${s.photo?`<img class="sc-photo" src="${phSrc(s.photo)}" alt="现场照片" loading="lazy">`:''}${cast?`<div class="c">${cast}</div>`:''}</div>`}).join('');
+    const meta=[s.place,s.main,s.sub].filter(Boolean).map(esc).join(' · '),cast=chipsOf(s),[ln,io]=lnTags(s),
+      tg=(c,t)=>t?`<span class="pl-tag ${c}">${esc(t)}</span>`:'',tags=[tg(/夜/.test(ln)?'nt':'dy',ln),tg('',io),tg('',s.light)].join('');
+    return`<div class="sc-card${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><div class="h">${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}<b>${esc(s.date)}</b><span>第${esc(s.ep)}集 · ${esc(s.sc)}场${npTag(s)}${ddMark(s)}</span><em>${pgOf(s)}</em></div>${ddHTML(s)}${tags?`<div class="tags">${tags}</div>`:''}${meta?`<div class="m">${meta}</div>`:''}${s.summary?`<div class="t">${esc(cut(s.summary))}</div>`:''}${s.photo?`<img class="sc-photo" src="${phSrc(s.photo)}" alt="现场照片" loading="lazy">`:''}${cast?`<div class="c">${cast}</div>`:''}</div>`}).join('');
   $('#vScenes').innerHTML=`${npBar()}<div class="mcards">${cards}<div class="tot">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div><div class="mtable"><table><thead><tr>${sortHead()}</tr></thead><tbody>`+
   rows.map(s=>`<tr class="row${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><td>${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}${esc(s.date).replace('/','/<br>')}</td><td>${s.ep}</td><td>${esc(s.sc)}${npTag(s)}${ddMark(s)}</td><td>${esc(s.light)}</td><td class="nw">${esc(lnOf(s))}</td><td>${esc(s.place)}</td><td class="wrap">${esc(cut(s.main))}</td><td class="wrap">${esc(cut(s.sub))}</td><td class="wrap">${esc(cut(s.summary))}</td><td class="num">${num(s.pages)!==null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('')}</td><td class="wrap dfc">${ddHTML(s)}</td></tr>`).join('')+
   `</tbody><tfoot><tr><th colspan="9">合计 ${rows.length} 场</th><th class="num">${fmt(tp)}</th><th></th><th></th></tr></tfoot></table></div><p class="hint hintTable">点任一场可查看完整资讯${ADMIN?',并可在窗口里编辑':''}。</p>${ADMIN?'<p class="hint hintCard">点任一张卡片即可编辑。</p>':''}`;
@@ -2239,12 +2240,13 @@ const SAME_MANUAL=[['20','21','19']]; // 用户指定:[集, 场次表场号, 日
 let _LN=null;
 function lnOf(s){ // 场次表没有日夜/内外:从大计划对应的场次带过来(大计划没写就不标);对应多场且不同时,各取不重复的值
   if(!PLAN)return'';
-  if(!_LN||_LN.n!==S.scenes.length||_LN.p!==PLAN){_LN={n:S.scenes.length,p:PLAN,m:new Map()};
+  if(!_LN||_LN.n!==S.scenes.length||_LN.p!==PLAN){_LN={n:S.scenes.length,p:PLAN,m:new Map(),t:new Map()};
     S.scenes.forEach(d=>{const ms=PLAN.scenes.filter(ps=>(String(ps.ep)===String(d.ep)&&String(ps.sc)===String(d.sc))||sameScene(d,ps));
       const u=k=>[...new Set(ms.map(p=>String(p[k]||'').trim()).filter(Boolean))];
-      const a=u('light').join('/'),b=u('io').join('/');_LN.m.set(d.id,[a,b].filter(Boolean).join(' · '))})}
+      const a=u('light').join('/'),b=u('io').join('/');_LN.m.set(d.id,[a,b].filter(Boolean).join(' · '));_LN.t.set(d.id,[a,b])})}
   return _LN.m.get(s.id)||'';
 }
+function lnTags(s){lnOf(s);return(_LN&&_LN.t.get(s.id))||['','']}
 const MERGED=[['14','23','23B']]; // 用户指定:日程表 14集23A、23B 实拍合并成 23场(23A 走下面的 A 规则)
 function sameScene(d,ps){
   if(String(d.ep)!==String(ps.ep))return false;
