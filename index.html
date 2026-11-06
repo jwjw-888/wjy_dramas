@@ -1914,14 +1914,14 @@ function filtered(){
 }
 /* 排序:点表头的字;同一列点第一次=递增,再点=递减。默认按集数递增,每次打开都从这里开始 */
 let SORT={key:'ep',dir:1};
-const COLS=[['date','日期'],['ep','集'],['sc','场'],['light','景光'],['place','地点'],['main','主场景'],['sub','次场景'],['summary','内容概要'],['pages','页','num'],['cast','角色']];
+const COLS=[['date','日期'],['ep','集'],['sc','场'],['light','景光'],['dn','日夜内外'],['place','地点'],['main','主场景'],['sub','次场景'],['summary','内容概要'],['pages','页','num'],['cast','角色']];
 function sorted(){
   const k=s=>parseInt(s.sc)||0;
   const byEp=(a,b)=>a.ep-b.ep||k(a)-k(b)||String(a.sc).localeCompare(String(b.sc),'zh',{numeric:true});
   const dk=s=>{const m=String(s.date||'').match(/(\d{1,2})\.(\d{1,2})/);return m?(+m[1])*100+(+m[2]):null}; // 跨天取第一个 月.日
   const txt=f=>s=>{const t=cut(s[f]).trim();return t||null};
   const val={ // 取每一场在该列的排序值;null=空白,永远排在最后
-    date:dk, ep:s=>s.ep||null, sc:s=>k(s)||null, light:txt('light'), place:txt('place'), main:txt('main'), sub:txt('sub'), summary:txt('summary'),
+    date:dk, ep:s=>s.ep||null, sc:s=>k(s)||null, light:txt('light'), dn:s=>lnOf(s)||null, place:txt('place'), main:txt('main'), sub:txt('sub'), summary:txt('summary'),
     pages:s=>num(s.pages), cast:s=>S.roles.filter(r=>s.cast[r]).length||null
   }[SORT.key];
   const cmp=(x,y)=>typeof x==='string'||typeof y==='string'?String(x).localeCompare(String(y),'zh',{numeric:true}):x-y;
@@ -1980,11 +1980,11 @@ function renderScenes(rows){
   const NOP=new Set(PLAN?planAdded().map(x=>x.ep+'|'+x.sc):[]),npTag=s=>NOP.has(s.ep+'|'+s.sc)?'<i class="nplan" title="大计划无">⭐</i>':'';
   const chipsOf=s=>S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('');
   const cards=rows.map(s=>{
-    const meta=[s.light,s.place,s.main,s.sub].filter(Boolean).map(esc).join(' · '),cast=chipsOf(s);
+    const meta=[lnOf(s),s.light,s.place,s.main,s.sub].filter(Boolean).map(esc).join(' · '),cast=chipsOf(s);
     return`<div class="sc-card${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><div class="h">${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}<b>${esc(s.date)}</b><span>第${esc(s.ep)}集 · ${esc(s.sc)}场${npTag(s)}${ddMark(s)}</span><em>${pgOf(s)}</em></div>${ddHTML(s)}${meta?`<div class="m">${meta}</div>`:''}${s.summary?`<div class="t">${esc(cut(s.summary))}</div>`:''}${s.photo?`<img class="sc-photo" src="${phSrc(s.photo)}" alt="现场照片" loading="lazy">`:''}${cast?`<div class="c">${cast}</div>`:''}</div>`}).join('');
   $('#vScenes').innerHTML=`${npBar()}<div class="mcards">${cards}<div class="tot">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div><div class="mtable"><table><thead><tr>${sortHead()}</tr></thead><tbody>`+
-  rows.map(s=>`<tr class="row${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><td>${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}${esc(s.date).replace('/','/<br>')}</td><td>${s.ep}</td><td>${esc(s.sc)}${npTag(s)}${ddMark(s)}</td><td>${esc(s.light)}</td><td>${esc(s.place)}</td><td class="wrap">${esc(cut(s.main))}</td><td class="wrap">${esc(cut(s.sub))}</td><td class="wrap">${esc(cut(s.summary))}</td><td class="num">${num(s.pages)!==null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('')}</td><td class="wrap dfc">${ddHTML(s)}</td></tr>`).join('')+
-  `</tbody><tfoot><tr><th colspan="8">合计 ${rows.length} 场</th><th class="num">${fmt(tp)}</th><th></th><th></th></tr></tfoot></table></div><p class="hint hintTable">点任一场可查看完整资讯${ADMIN?',并可在窗口里编辑':''}。</p>${ADMIN?'<p class="hint hintCard">点任一张卡片即可编辑。</p>':''}`;
+  rows.map(s=>`<tr class="row${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><td>${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}${esc(s.date).replace('/','/<br>')}</td><td>${s.ep}</td><td>${esc(s.sc)}${npTag(s)}${ddMark(s)}</td><td>${esc(s.light)}</td><td class="nw">${esc(lnOf(s))}</td><td>${esc(s.place)}</td><td class="wrap">${esc(cut(s.main))}</td><td class="wrap">${esc(cut(s.sub))}</td><td class="wrap">${esc(cut(s.summary))}</td><td class="num">${num(s.pages)!==null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('')}</td><td class="wrap dfc">${ddHTML(s)}</td></tr>`).join('')+
+  `</tbody><tfoot><tr><th colspan="9">合计 ${rows.length} 场</th><th class="num">${fmt(tp)}</th><th></th><th></th></tr></tfoot></table></div><p class="hint hintTable">点任一场可查看完整资讯${ADMIN?',并可在窗口里编辑':''}。</p>${ADMIN?'<p class="hint hintCard">点任一张卡片即可编辑。</p>':''}`;
   bindNp();
   document.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;SORT=SORT.key===k?{key:k,dir:-SORT.dir}:{key:k,dir:1};render()});
@@ -2236,6 +2236,15 @@ const _nb=x=>{const q=/^(\d+)[A-Z]?$/.exec(String(x));return q?q[1]:null};
 const _nz=t=>toSimp(String(t||'').replace(/【[^】]*】?/g,'').replace(/[\s\p{P}\p{S}]/gu,''));
 const _sim=(a,b)=>{a=_nz(a);b=_nz(b);if(!a||!b)return 1;if(a.includes(b)||b.includes(a))return 1;const g=t=>{const o=new Set();for(let i=0;i<t.length-1;i++)o.add(t.slice(i,i+2));return o},A=g(a),B=g(b);if(!A.size||!B.size)return 1;let c=0;A.forEach(x=>{if(B.has(x))c++});return 2*c/(A.size+B.size)};
 const SAME_MANUAL=[['20','21','19']]; // 用户指定:[集, 场次表场号, 日程表场号] 内容相同、拍摄时改了场号(20集19→21:乔装货郎盯梢)
+let _LN=null;
+function lnOf(s){ // 场次表没有日夜/内外:从大计划对应的场次带过来(大计划没写就不标);对应多场且不同时,各取不重复的值
+  if(!PLAN)return'';
+  if(!_LN||_LN.n!==S.scenes.length||_LN.p!==PLAN){_LN={n:S.scenes.length,p:PLAN,m:new Map()};
+    S.scenes.forEach(d=>{const ms=PLAN.scenes.filter(ps=>(String(ps.ep)===String(d.ep)&&String(ps.sc)===String(d.sc))||sameScene(d,ps));
+      const u=k=>[...new Set(ms.map(p=>String(p[k]||'').trim()).filter(Boolean))];
+      const a=u('light').join('/'),b=u('io').join('/');_LN.m.set(d.id,[a,b].filter(Boolean).join(' · '))})}
+  return _LN.m.get(s.id)||'';
+}
 const MERGED=[['14','23','23B']]; // 用户指定:日程表 14集23A、23B 实拍合并成 23场(23A 走下面的 A 规则)
 function sameScene(d,ps){
   if(String(d.ep)!==String(ps.ep))return false;
@@ -2449,7 +2458,7 @@ function openDetail(id){
   const ph=$('#ddPhoto').firstElementChild;
   $('#ddPhoto').hidden=!s.photo;$('#ddlg').classList.toggle('hasPhoto',!!s.photo);
   if(s.photo)ph.src=phSrc(s.photo);else ph.removeAttribute('src');
-  $('#ddGrid').innerHTML=[['拍摄日期',v(s.date)],['集数',s.ep?`第${s.ep}集`:v('')],['场号',v(s.sc)],['页数',pg||'<i class="nv">—</i>'],['景光',v(s.light)],['景别(地点)',v(s.place),1],['主场景',v(s.main),1],['次场景',v(s.sub),1]]
+  $('#ddGrid').innerHTML=[['拍摄日期',v(s.date)],['集数',s.ep?`第${s.ep}集`:v('')],['场号',v(s.sc)],['页数',pg||'<i class="nv">—</i>'],['景光',v(s.light)],['日夜内外',v(lnOf(s))],['景别(地点)',v(s.place),1],['主场景',v(s.main),1],['次场景',v(s.sub),1]]
     .map(([k,h,w])=>`<div class="${w?'wide':''}"><span>${k}</span><b>${h}</b></div>`).join('');
   $('#ddSum').innerHTML=v(s.summary);
   const cast=S.roles.filter(r=>s.cast[r]);
