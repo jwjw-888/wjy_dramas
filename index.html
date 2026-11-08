@@ -2288,8 +2288,8 @@ function planDiff(){
     else if(split&&ms.length===1&&String(ms[0].sc)!==String(ps.sc))out.push('场号:日程 '+ps.sc+' → 实拍 '+ms[0].sc);
     else if(split)out.push('拆成 '+ms.length+' 场戏:'+ms.map(d=>d.sc+'场'+(num(d.pages)!==null?' '+fmt(num(d.pages))+'页':'')+(d.summary?'「'+cut(d.summary.replace(/【[^】]*】/g,''))+'」':'')).join('、'));
     const dd=days[ps.day],dts=[];
-    ms.forEach(d=>{[...String(d.date||'').matchAll(/(\d+)\D+?(\d+)/g)].forEach(q=>{if(dd&&(+q[1]!==dd.m||+q[2]!==dd.d)){const t=+q[1]+'/'+ +q[2];if(!dts.includes(t))dts.push(t)}})});
-    if(dts.length)out.push('拍摄日期:原定 '+dd.m+'/'+dd.d+' → 实拍 '+dts.join('、'));
+    let anyd=false;ms.forEach(d=>{[...String(d.date||'').matchAll(/(\d+)\D+?(\d+)/g)].forEach(q=>{const t=+q[1]+'/'+ +q[2];if(dd&&(+q[1]!==dd.m||+q[2]!==dd.d))anyd=true;if(!dts.includes(t))dts.push(t)})});
+    if(anyd&&dts.length)out.push('拍摄日期:原定 '+dd.m+'/'+dd.d+' → 实拍 '+dts.join('、'));
     const dp=ms.map(d=>num(d.pages));
     const pp=mg?Math.round(mgp.reduce((a,q)=>a+(q.pages||0),0)*100)/100:ps.pages;
     if(dp.every(v=>v!==null)&&pp!=null){const t=Math.round(dp.reduce((a,v)=>a+v,0)*100)/100;if(Math.abs(t-pp)>0.001)out.push('页数:日程 '+fmt(pp)+' → 实拍 '+fmt(t)+(ms.length>1?'('+dp.map(fmt).join('+')+')':''))}
