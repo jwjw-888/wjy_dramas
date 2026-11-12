@@ -1989,8 +1989,9 @@ function renderScenes(rows){
   `</tbody>${NPONLY?'':`<tfoot><tr><th colspan="9">合计 ${rows.length} 场</th><th class="num">${fmt(tp)}</th><th></th><th></th></tr></tfoot>`}</table></div><div id="npSlot"></div><p class="hint hintTable">点任一场可查看完整资讯${ADMIN?',并可在窗口里编辑':''}。</p>${ADMIN?'<p class="hint hintCard">点任一张卡片即可编辑。</p>':''}`;
   if(NPONLY){ // 勾选「已拍但大计划没有」时,在最下面统计这些场次的页数和页数最多的前三位角色
     const rp={};rows.forEach(r=>S.roles.forEach(n=>{if(r.cast[n])rp[n]=(rp[n]||0)+(num(r.pages)||0)}));
-    const top=Object.entries(rp).sort((x,y)=>y[1]-x[1]||S.roles.indexOf(x[0])-S.roles.indexOf(y[0])).slice(0,3);
-    $('#npSlot').innerHTML=`<div class="npsum"><b>⭐ 合计 ${rows.length} 场 · ${fmt(tp)} 页</b><div>页数最多的角色:${top.map((t,i)=>`<span>${i+1}. ${esc(t[0])} ${fmt(Math.round(t[1]*100)/100)}页</span>`).join('')}</div><div>陆封:<span>${fmt(Math.round((rp['陆封']||0)*100)/100)}页</span></div></div>`}
+    const all=Object.entries(rp).sort((x,y)=>y[1]-x[1]||S.roles.indexOf(x[0])-S.roles.indexOf(y[0])),pick=all.slice(0,3);
+    if(!pick.some(t=>t[0]==='陆封')){const lf=all.find(t=>t[0]==='陆封');if(lf)pick.push(lf)}else if(all[3])pick.push(all[3]); // 固定四位:前三名 + 陆封(陆封已在前三就补第四名)
+    $('#npSlot').innerHTML=`<div class="npsum"><b>⭐ 合计 ${rows.length} 场 · ${fmt(tp)} 页</b><div>页数最多的角色:${pick.map(t=>`<span>${all.indexOf(t)+1}. ${esc(t[0])} ${fmt(Math.round(t[1]*100)/100)}页</span>`).join('')}</div></div>`}
   bindNp();
   document.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;SORT=SORT.key===k?{key:k,dir:-SORT.dir}:{key:k,dir:1};render()});
