@@ -368,6 +368,7 @@ body.mview .hintCard{display:block}
 .ckgrp{display:flex;flex-direction:column;gap:2px;flex:none}.diffck b{font-weight:600;color:var(--accent,#e8c47a);margin-left:4px;font-size:12px}.diffck{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;white-space:nowrap;flex:none;margin-top:4px;padding:0 4px;color:var(--text,inherit);font-size:13px}.diffck input{width:auto!important;height:auto!important;margin:0}
 .pl-tbl .pl-diff{min-width:150px;margin-top:5px}.pl-diff.pl-over{background:#007979;color:#fff}.pl-diff.pl-new{background:#708069;color:#fff}.pl-diff{margin-top:6px;padding:5px 8px;border-radius:6px;background:rgba(248,113,113,.15);color:#fca5a5;font-size:12px;line-height:1.5;font-weight:600;white-space:normal}
 .pl-shot{font-style:normal;font-size:11px;padding:0 6px;border-radius:4px;background:rgba(80,190,160,.18);border:1px solid rgba(80,190,160,.5);color:#b0ead8}
+.npsum{margin:12px 0;padding:12px 14px;border:1px solid var(--line,#3a3a44);border-radius:12px;background:#708069;color:#fff;font-size:14px;line-height:1.7}.npsum b{display:block;font-size:15px}.npsum span{margin-right:14px;white-space:nowrap}
 .pl-card .tags,.sc-card .tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
 .pl-tag{font-size:12px;padding:0 7px;border-radius:4px;border:1px solid #3a3a43;color:#cfcac0}
 .pl-tag.dt{color:var(--mute)}.pl-tag.nt{background:#1b2b52;border-color:#4a6bb8;color:#cfe0ff}.pl-tag.dy{background:rgba(217,181,108,.14);border-color:rgba(217,181,108,.45);color:#f0d9a0}
@@ -1986,6 +1987,10 @@ function renderScenes(rows){
   $('#vScenes').innerHTML=`${npBar()}<div class="mcards">${cards}<div class="tot">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div><div class="mtable"><table><thead><tr>${sortHead()}</tr></thead><tbody>`+
   rows.map(s=>`<tr class="row${NOP.has(s.ep+'|'+s.sc)?' noplan':''}" data-id="${s.id}"><td>${s.photo?'<span class="cam" title="有现场照片">📷</span>':''}${esc(s.date).replace('/','/<br>')}</td><td>${s.ep}</td><td>${esc(s.sc)}${npTag(s)}${ddMark(s)}</td><td>${esc(s.light)}</td><td class="nw">${esc(lnOf(s))}</td><td>${esc(s.place)}</td><td class="wrap">${esc(cut(s.main))}</td><td class="wrap">${esc(cut(s.sub))}</td><td class="wrap">${esc(cut(s.summary))}</td><td class="num">${num(s.pages)!==null?fmt(s.pages):esc(s.pnote||'')}</td><td class="wrap">${S.roles.filter(r=>s.cast[r]).map(r=>`<span class="chip rc ${s.cast[r]===2?'z':''} ${r===PINK?'pink':''}">${esc(r)}</span>`).join('')}</td><td class="wrap dfc">${ddHTML(s)}</td></tr>`).join('')+
   `</tbody><tfoot><tr><th colspan="9">合计 ${rows.length} 场</th><th class="num">${fmt(tp)}</th><th></th><th></th></tr></tfoot></table></div><p class="hint hintTable">点任一场可查看完整资讯${ADMIN?',并可在窗口里编辑':''}。</p>${ADMIN?'<p class="hint hintCard">点任一张卡片即可编辑。</p>':''}`;
+  if(NPONLY){ // 勾选「已拍但大计划没有」时,在最下面统计这些场次的页数和页数最多的前三位角色
+    const rp={};rows.forEach(r=>S.roles.forEach(n=>{if(r.cast[n])rp[n]=(rp[n]||0)+(num(r.pages)||0)}));
+    const top=Object.entries(rp).sort((x,y)=>y[1]-x[1]||S.roles.indexOf(x[0])-S.roles.indexOf(y[0])).slice(0,3);
+    $('#vScenes').insertAdjacentHTML('beforeend',`<div class="npsum"><b>⭐ 累计 ${rows.length} 场 · ${fmt(tp)} 页</b><div>页数最多的角色:${top.map((t,i)=>`<span>${i+1}. ${esc(t[0])} ${fmt(Math.round(t[1]*100)/100)}页</span>`).join('')}</div></div>`)}
   bindNp();
   document.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;SORT=SORT.key===k?{key:k,dir:-SORT.dir}:{key:k,dir:1};render()});
