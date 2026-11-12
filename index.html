@@ -1990,7 +1990,7 @@ function renderScenes(rows){
   if(NPONLY){ // 勾选「已拍但大计划没有」时,在最下面统计这些场次的页数和页数最多的前三位角色
     const rp={};rows.forEach(r=>S.roles.forEach(n=>{if(r.cast[n])rp[n]=(rp[n]||0)+(num(r.pages)||0)}));
     const top=Object.entries(rp).sort((x,y)=>y[1]-x[1]||S.roles.indexOf(x[0])-S.roles.indexOf(y[0])).slice(0,3);
-    $('#vScenes').insertAdjacentHTML('beforeend',`<div class="npsum"><b>⭐ 累计 ${rows.length} 场 · ${fmt(tp)} 页</b><div>页数最多的角色:${top.map((t,i)=>`<span>${i+1}. ${esc(t[0])} ${fmt(Math.round(t[1]*100)/100)}页</span>`).join('')}</div></div>`)}
+    $('#vScenes').insertAdjacentHTML('beforeend',`<div class="npsum"><b>⭐ 累计 ${rows.length} 场 · ${fmt(tp)} 页</b><div>页数最多的角色:${top.map((t,i)=>`<span>${i+1}. ${esc(t[0])} ${fmt(Math.round(t[1]*100)/100)}页</span>`).join('')}</div><div>陆封:<span>${fmt(Math.round((rp['陆封']||0)*100)/100)}页</span></div></div>`)}
   bindNp();
   document.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;SORT=SORT.key===k?{key:k,dir:-SORT.dir}:{key:k,dir:1};render()});
