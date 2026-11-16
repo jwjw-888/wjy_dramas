@@ -2244,7 +2244,7 @@ const _nz=t=>toSimp(String(t||'').replace(/【[^】]*】?/g,'').replace(/[\s\p{P
 const _sim=(a,b)=>{a=_nz(a);b=_nz(b);if(!a||!b)return 1;if(a.includes(b)||b.includes(a))return 1;const g=t=>{const o=new Set();for(let i=0;i<t.length-1;i++)o.add(t.slice(i,i+2));return o},A=g(a),B=g(b);if(!A.size||!B.size)return 1;let c=0;A.forEach(x=>{if(B.has(x))c++});return 2*c/(A.size+B.size)};
 const NOTSAME=[['25','24']]; // 用户指定:场次表 25集24(青雷闯讼铺抓人)不是日程表 25集24(师爷报告青雷报官):算新加场次(场次更动),日程那场仍未拍
 const isNS=(ep,sc)=>NOTSAME.some(m=>m[0]===String(ep)&&m[1]===String(sc));
-const SAME_MANUAL=[['20','21','19']]; // 用户指定:[集, 场次表场号, 日程表场号] 内容相同、拍摄时改了场号(20集19→21:乔装货郎盯梢)
+const SAME_MANUAL=[['20','21','19'],['26','20','21']]; // 用户指定:[集, 场次表场号, 日程表场号] 内容相同、拍摄时改了场号(20集19→21:乔装货郎盯梢)
 let _LN=null;
 function lnOf(s){ // 场次表没有日夜/内外:从大计划对应的场次带过来(大计划没写就不标);对应多场且不同时,各取不重复的值
   if(!PLAN)return'';
