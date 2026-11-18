@@ -11,9 +11,7 @@
 ## 二、安全规则(绝对遵守)
 - 不要改 data.json 里的 sec(加密的 GitHub token),也不要改管理员账号密码。
 - 用户的 email 不能出现在网站或 commit 里。commit 作者用 jwjw-888@users.noreply.github.com。
-- commit 信息最后加两行:
-  - Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
-  - Claude-Session: (系统给的链接)
+- commit 信息最后的署名行(Co-Authored-By 和 Claude-Session),照该聊天系统给的内容原样写,模型名以实际使用的为准(例如 Opus 5.5 就写 Opus 5.5),不要照抄旧的、不要写死。
 - 先 git pull --rebase 再 push。
 
 ## 三、每次上传 Excel 要做的事
