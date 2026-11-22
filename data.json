@@ -4303,6 +4303,113 @@
     "陆封": 1,
     "赵秀宁": 1
    }
+  },
+  {
+   "id": 230,
+   "date": "11.22",
+   "ep": 12,
+   "sc": "23",
+   "light": "秋",
+   "place": "太平县",
+   "main": "泠音馆",
+   "sub": "后院走廊/通铺/化妆间/内院单间",
+   "summary": "乔装见病弱乐伎",
+   "pages": 1.15,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "柳萍萍/小柳萍萍": 1,
+    "潇潇": 1
+   }
+  },
+  {
+   "id": 231,
+   "date": "11.22",
+   "ep": 12,
+   "sc": "24",
+   "light": "秋",
+   "place": "太平县",
+   "main": "泠音馆",
+   "sub": "内院单间",
+   "summary": "发现假扮药童的卿",
+   "pages": 0.9,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "柳萍萍/小柳萍萍": 1,
+    "潇潇": 1
+   }
+  },
+  {
+   "id": 232,
+   "date": "11.22",
+   "ep": 13,
+   "sc": "3",
+   "light": "",
+   "place": "太平县",
+   "main": "泠音馆",
+   "sub": "某房间外",
+   "summary": "【前尘3】萍萍遭打言轻屈从",
+   "pages": 0.6,
+   "pnote": "",
+   "cast": {
+    "温轻言/小温轻言": 1,
+    "柳萍萍/小柳萍萍": 1
+   }
+  },
+  {
+   "id": 233,
+   "date": "11.22",
+   "ep": 13,
+   "sc": "4A",
+   "light": "秋",
+   "place": "太平县",
+   "main": "泠音馆",
+   "sub": "化妆间",
+   "summary": "【前尘4】言轻上妆",
+   "pages": 0.15,
+   "pnote": "",
+   "cast": {
+    "温轻言/小温轻言": 1
+   }
+  },
+  {
+   "id": 234,
+   "date": "11.22",
+   "ep": 13,
+   "sc": "4B",
+   "light": "",
+   "place": "太平县",
+   "main": "泠音馆",
+   "sub": "后院柴房",
+   "summary": "【前尘4】言轻卖身攒赎银",
+   "pages": 0.35,
+   "pnote": "",
+   "cast": {
+    "温轻言/小温轻言": 1,
+    "柳萍萍/小柳萍萍": 1
+   }
+  },
+  {
+   "id": 235,
+   "date": "11.22",
+   "ep": 13,
+   "sc": "23",
+   "light": "秋",
+   "place": "太平县",
+   "main": "泠音馆",
+   "sub": "后院大通铺内室",
+   "summary": "乐伎联名按血状",
+   "pages": 1.2,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "柳萍萍/小柳萍萍": 1,
+    "潇潇": 1
+   }
   }
  ],
  "sec": "i130XMVZ2kv6lkw4Zr6h6/r4RtrbFW35dNeWopf4VgqPW5BqivrRON5XK9ZBCOqpDOOA7BTaYUlHfksEAQBpr5nR/1ffU1LdpDKB+6ulBmOoLdUTmzPzeKqSVwT1PtsprqFyi/BOExkyqvfvvN2c4Mb04dCAY0WjFGJMOcK3cUUh++H9W05gv+Q="
