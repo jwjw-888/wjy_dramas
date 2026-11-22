@@ -4165,6 +4165,144 @@
     "温父": 1,
     "温母": 1
    }
+  },
+  {
+   "id": 222,
+   "date": "11.23",
+   "ep": 15,
+   "sc": "18",
+   "light": "秋",
+   "place": "太平县",
+   "main": "阮氏讼铺外巷",
+   "sub": "",
+   "summary": "二人怀疑太后",
+   "pages": 0.1,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1
+   }
+  },
+  {
+   "id": 223,
+   "date": "11.23",
+   "ep": 15,
+   "sc": "20",
+   "light": "秋",
+   "place": "太平县",
+   "main": "阮氏讼铺外巷",
+   "sub": "",
+   "summary": "【接15-18】猜测调走县令目的",
+   "pages": 0.35,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1
+   }
+  },
+  {
+   "id": 224,
+   "date": "11.23",
+   "ep": 18,
+   "sc": "22",
+   "light": "秋",
+   "place": "太平县",
+   "main": "阮氏讼铺",
+   "sub": "阮卿卿卧室",
+   "summary": "卿卿写如眉案结案日记",
+   "pages": 0.3,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1
+   }
+  },
+  {
+   "id": 225,
+   "date": "11.23",
+   "ep": 19,
+   "sc": "17",
+   "light": "秋",
+   "place": "太平县",
+   "main": "阮氏讼铺【封条",
+   "sub": "堂屋/院子",
+   "summary": "封送吃食讨论苏辞",
+   "pages": 0.6,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1
+   }
+  },
+  {
+   "id": 226,
+   "date": "11.23",
+   "ep": 22,
+   "sc": "14",
+   "light": "秋",
+   "place": "太平县",
+   "main": "阮氏讼铺",
+   "sub": "门口长街",
+   "summary": "怀疑明月案子有蹊跷",
+   "pages": 0.35,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1
+   }
+  },
+  {
+   "id": 227,
+   "date": "11.23",
+   "ep": 24,
+   "sc": "26",
+   "light": "冬",
+   "place": "太平县",
+   "main": "阮氏讼铺",
+   "sub": "阮卿卿卧室",
+   "summary": "陆封示情陆二来报",
+   "pages": 1,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "陆二": 1
+   }
+  },
+  {
+   "id": 228,
+   "date": "11.23",
+   "ep": 26,
+   "sc": "16",
+   "light": "冬",
+   "place": "太平县",
+   "main": "阮氏讼铺",
+   "sub": "客房",
+   "summary": "赵秀宁询问 (含17场VO)",
+   "pages": 0.15,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "赵秀宁": 1
+   }
+  },
+  {
+   "id": 229,
+   "date": "11.23",
+   "ep": 26,
+   "sc": "18",
+   "light": "冬",
+   "place": "太平县",
+   "main": "阮氏讼铺",
+   "sub": "客房",
+   "summary": "【接26-16】秀宁道合作复仇",
+   "pages": 1.1,
+   "pnote": "",
+   "cast": {
+    "祝阮/阮卿卿": 1,
+    "陆封": 1,
+    "赵秀宁": 1
+   }
   }
  ],
  "sec": "i130XMVZ2kv6lkw4Zr6h6/r4RtrbFW35dNeWopf4VgqPW5BqivrRON5XK9ZBCOqpDOOA7BTaYUlHfksEAQBpr5nR/1ffU1LdpDKB+6ulBmOoLdUTmzPzeKqSVwT1PtsprqFyi/BOExkyqvfvvN2c4Mb04dCAY0WjFGJMOcK3cUUh++H9W05gv+Q="
