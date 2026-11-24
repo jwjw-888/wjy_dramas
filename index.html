@@ -143,6 +143,9 @@ main{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env
 .st-card .h{margin-bottom:8px}
 .st-card .no{color:var(--mute);font-size:12px;min-width:18px}
 .st-card .h b{font-size:16px}
+.act{font-weight:400;white-space:nowrap;margin-left:8px;font-size:12px}.act.gold{color:#e8c47a}.act.green{color:#6fd1a0}
+.st-card .h .act{font-size:16px;margin-left:0}
+.rolelink{white-space:nowrap}
 .st-card .r{display:flex;align-items:baseline;gap:8px;margin:6px 0 4px;font-size:13px}
 .st-card .r span{color:var(--mute);min-width:32px}
 .st-card .r strong{font:600 17px/1 "Songti SC","Noto Serif CJK SC",serif;color:#f3ecd9}
@@ -438,6 +441,8 @@ body.mview .card>.bar .datebtn{font-size:14px;line-height:19px;padding:7px 6px}
 .npbar{display:flex;flex-wrap:wrap;gap:0 18px}@media(max-width:560px){.npbar{gap:0 6px}.npbar .npleg{font-size:10px;gap:3px;margin:6px 0 8px}.npbar .npleg input{width:14px;height:14px}.npbar .npleg i{margin-right:0}}
 .npleg{display:flex;align-items:center;gap:6px;margin:6px 2px 8px;font-size:13px;color:#ff6b4a;cursor:pointer}.npleg input{accent-color:#ff6b4a;width:16px;height:16px;margin:0}.npleg i{color:#ff6b4a;font-style:normal;margin-right:4px}
 .xlink{display:inline-flex;align-items:center;white-space:nowrap;text-decoration:none;padding:7px 14px;border-radius:10px;border:1px solid #e8c47a;color:#e8c47a;background:rgba(20,14,10,.55);font-weight:600;font-size:14px}.xlink:hover{background:rgba(232,196,122,.15)}
+/* 角色栏+演员名同一行,不换行 */
+.plbar th:nth-child(2),.plbar td:nth-child(2){white-space:nowrap!important;width:auto!important}
 </style>
 <script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","z6r15vwhhq");</script>
 </head>
@@ -1686,6 +1691,9 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>(Math.round(n*100)/100).toString();
 const PINK='祝阮/阮卿卿';
+/* 角色 → 演员(用户 11/24 提供)。吴谨言金色,其他绿色;只显示在戏份占比的角色排行 */
+const ACTORS={"祝阮/阮卿卿": "吴谨言", "陆封": "邓凯", "夏玉尔": "郑合惠子", "沈心阳": "刘畅", "芈大丽": "韩云云", "陆二": "王江一", "程县令": "向夏", "程夫人": "施诗", "赵丽华": "左小青", "赵嬷嬷": "马丁", "沈麟趾": "陈思佚", "林鸢": "刘禹潞飞", "林母": "张媛钰", "王夫人": "刘丹", "许妮子": "何思甜", "徐秋燕": "汤梦佳", "韩生": "杨贺文", "芸娘": "上淇", "胡妹夭": "李嘉鑫", "胡妙娘": "苏青", "盼儿": "曹宴宁", "柳萍萍/小柳萍萍": "张雪迎", "温轻言/小温轻言": "吴宇恒", "兰老夫人": "艾丽娅", "周雨荷": "王俊笔", "蔡氏": "李羽桐", "真娘/蒲娘": "刘美含", "端王": "杜淳", "上官华": "彭杨", "苏母": "杨晨", "黄灯/小黄灯": "郑好", "江梦吉": "昌隆"};
+const actHTML=r=>ACTORS[r]?`<small class="act ${ACTORS[r]==='吴谨言'?'gold':'green'}">${esc(ACTORS[r])}</small>`:'';
 const cut=s=>String(s||'').replace(/\n/g,' ');
 
 /* ---- 数据来源 ----
@@ -2148,10 +2156,10 @@ function renderStats(rows){
   <div class="bar sortbar" style="margin-top:14px"><span class="hint">排序:</span><button class="sortb ${sortBy==='p'?'on':''}" data-s="p">按页数</button><button class="sortb ${sortBy==='n'?'on':''}" data-s="n">按场次</button></div>
   <p class="rolehint" style="margin:10px 0 0">💡 <b>点角色名</b>可以看她所有的场次</p>
   <div class="mcards" style="margin-top:10px">`+
-  list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<div class="st-card ${x.r===PINK?'pinkrow':''}"><div class="h"><span class="no">${i+1}</span><b class="rolelink" data-role="${esc(x.r)}" title="点一下,看她所有的场次">${esc(x.r)}</b></div><div class="r"><span>场次</span><strong>${x.n}</strong><em>${ps.toFixed(1)}%</em></div>${bar(ps)}<div class="r"><span>页数</span><strong>${fmt(x.p)}</strong><em>${pp.toFixed(1)}%</em></div>${bar(pp)}</div>`}).join('')+
+  list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<div class="st-card ${x.r===PINK?'pinkrow':''}"><div class="h"><span class="no">${i+1}</span><b class="rolelink" data-role="${esc(x.r)}" title="点一下,看她所有的场次">${esc(x.r)}</b>${actHTML(x.r)}</div><div class="r"><span>场次</span><strong>${x.n}</strong><em>${ps.toFixed(1)}%</em></div>${bar(ps)}<div class="r"><span>页数</span><strong>${fmt(x.p)}</strong><em>${pp.toFixed(1)}%</em></div>${bar(pp)}</div>`}).join('')+
   `</div>
   <div class="scroll mtable plbar" style="margin-top:10px"><table><thead><tr><th>#</th><th>角色</th><th class="num">场次</th><th class="num">场次占比</th><th style="width:22%"></th><th class="num">页数</th><th class="num">页数占比</th><th style="width:22%"></th></tr></thead><tbody>`+
-  list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<tr class="${x.r===PINK?'pinkrow':''}"><td>${i+1}</td><td><b class="rolelink" data-role="${esc(x.r)}" title="点一下,看她所有的场次">${x.r.split('/').map(p=>`<span style="white-space:nowrap">${esc(p)}</span>`).join('/<wbr>')}</b></td><td class="num">${x.n}</td><td class="num">${ps.toFixed(1)}%</td><td>${bar(ps)}</td><td class="num">${fmt(x.p)}</td><td class="num">${pp.toFixed(1)}%</td><td>${bar(pp)}</td></tr>`}).join('')+
+  list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<tr class="${x.r===PINK?'pinkrow':''}"><td>${i+1}</td><td><b class="rolelink" data-role="${esc(x.r)}" title="点一下,看她所有的场次">${esc(x.r)}</b>${actHTML(x.r)}</td><td class="num">${x.n}</td><td class="num">${ps.toFixed(1)}%</td><td>${bar(ps)}</td><td class="num">${fmt(x.p)}</td><td class="num">${pp.toFixed(1)}%</td><td>${bar(pp)}</td></tr>`}).join('')+
   `</tbody></table></div>`;
   document.querySelectorAll('.sortb').forEach(b=>b.onclick=()=>{sortBy=b.dataset.s;render()});
   document.querySelectorAll('.epbtn:not(.cobtn)').forEach(b=>b.onclick=()=>{EPV=true;PIE=false;render()});
@@ -2208,7 +2216,7 @@ function renderPlan(){
   <div class="mcards" style="margin-top:10px">`+
   list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<div class="st-card ${x.r===PINK?'pinkrow':''}"><div class="h"><span class="no">${i+1}</span><b>${esc(x.r)}</b></div><div class="r"><span>场次</span><strong>${x.n}</strong><em>${ps.toFixed(1)}%</em></div>${bar(ps)}<div class="r"><span>页数</span><strong>${fmt(x.p)}</strong><em>${pp.toFixed(1)}%</em></div>${bar(pp)}</div>`}).join('')+
   `</div><div class="scroll mtable plbar" style="margin-top:10px"><table><thead><tr><th>#</th><th>角色</th><th class="num">场次</th><th class="num">场次占比</th><th style="width:22%"></th><th class="num">页数</th><th class="num">页数占比</th><th style="width:22%"></th></tr></thead><tbody>`+
-  list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<tr class="${x.r===PINK?'pinkrow':''}"><td>${i+1}</td><td><b>${x.r.split('/').map(p=>`<span style="white-space:nowrap">${esc(p)}</span>`).join('/<wbr>')}</b></td><td class="num">${x.n}</td><td class="num">${ps.toFixed(1)}%</td><td>${bar(ps)}</td><td class="num">${fmt(x.p)}</td><td class="num">${pp.toFixed(1)}%</td><td>${bar(pp)}</td></tr>`}).join('')+`</tbody></table></div>`;
+  list.map((x,i)=>{const ps=nsc?x.n/nsc*100:0,pp=total?x.p/total*100:0;return`<tr class="${x.r===PINK?'pinkrow':''}"><td>${i+1}</td><td><b>${esc(x.r)}</b>${actHTML(x.r)}</td><td class="num">${x.n}</td><td class="num">${ps.toFixed(1)}%</td><td>${bar(ps)}</td><td class="num">${fmt(x.p)}</td><td class="num">${pp.toFixed(1)}%</td><td>${bar(pp)}</td></tr>`}).join('')+`</tbody></table></div>`;
   $('#plCo').onclick=()=>{COV=true;render()};$('#plSch').onclick=()=>{SCH=true;render()};
   if(!roles.includes(planLead))planLead=PINK;
   if(COV){box.innerHTML='<button class="coback" type="button">← 返回大计划统计</button>'+coHTML(all,roles,planLead,'planLead');$('#planLead').onchange=e=>{planLead=e.target.value;render()}}
