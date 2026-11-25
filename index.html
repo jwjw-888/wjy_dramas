@@ -447,6 +447,8 @@ body.mview .card>.bar .datebtn{font-size:14px;line-height:19px;padding:7px 6px}
 .plbar td:nth-child(2) b{text-align:left}
 .plbar td:nth-child(2) b.rolelink::after{content:none}
 .plbar td:nth-child(2) b.rolelink>span:last-child::after{content:" ›";color:var(--accent);font-weight:400}
+.overstat{margin:16px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#121217}.overstat h4{margin:0 0 8px;font-size:14px;color:var(--accent)}.overstat .ov{display:flex;align-items:baseline;gap:14px;white-space:nowrap;padding:5px 0;border-top:1px solid #23232b}.overstat .ov:first-of-type{border-top:0}.overstat .ov b{min-width:96px;font-size:14px}.overstat .ov b.pk{color:var(--pink)}.overstat .ov span{font-variant-numeric:tabular-nums;min-width:52px;text-align:right}.overstat .ov small{color:var(--mute)}
+@media(max-width:560px){.overstat .ov{gap:8px}.overstat .ov b{min-width:86px}.overstat .ov span{min-width:44px}.overstat .ov small{font-size:11px}}
 </style>
 <script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","z6r15vwhhq");</script>
 </head>
@@ -2346,6 +2348,12 @@ function dbDiff(){ // 场次表用:场次编号 → 与大计划的差异说明
   ADD.forEach(x=>S.scenes.filter(d=>String(d.ep)===String(x.ep)&&String(d.sc)===String(x.sc)).forEach(d=>put(d.id,[newTxt(d)])));
   return m;
 }
+/* 勾选「过期未拍」时,最下方统计五位主要角色未拍的场次和页数(日程标「？」的也算) */
+function overStat(rows){
+  const L=['祝阮/阮卿卿','陆封','夏玉尔','沈心阳','芈大丽'].map(r=>{const m=rows.filter(x=>x.s.cast.includes(r));const q=m.filter(x=>(x.s.unsure||[]).includes(r)).length;
+    return{r,n:m.length,p:m.reduce((a,x)=>a+(x.s.pages||0),0),q}});
+  return`<div class="overstat"><h4>五位角色过期未拍</h4>${L.map(o=>`<div class="ov"><b class="${o.r===PINK?'pk':''}">${esc(o.r)}</b><span>${o.n} 场</span><span>${fmt(o.p)} 页</span>${o.q?`<small>(含「？」${o.q} 场)</small>`:''}</div>`).join('')}</div>`;
+}
 function schList(){
   const {P,days,ADD,shot,diffOf,dfl,dfHTML,over}=planDiff();
   const q=toSimp(SCHF.q.trim()).split(/\s+/).filter(Boolean);
@@ -2377,7 +2385,7 @@ function schList(){
   const head=SCOLS.map(([key,lab,cls])=>key==='cast'||key==='diff'?`<th>${lab}</th>`:`<th class="sortable${cls?' '+cls:''}${k===key?' sorted':''}" data-sk="${key}" title="点一下排序,再点一下反向">${lab}<i>${k===key?(dir>0?'▲':'▼'):''}</i></th>`).join('');
   $('#schList').innerHTML=rows.length?`<div class="pl-cards"><div class="pl-list">${rows.map(card).join('')}</div><div class="tot" style="color:var(--accent);font-size:13px;padding:10px 4px">合计 ${rows.length} 场 · ${fmt(tp)} 页</div></div>
   <div class="scroll mtable pl-tblwrap"><table class="pl-tbl"><thead><tr>${head}</tr></thead><tbody>${rows.map(trow).join('')}</tbody><tfoot><tr><th colspan="9" style="text-align:left">合计 ${rows.length} 场</th><th colspan="6" class="num" style="text-align:left">${fmt(tp)} 页</th></tr></tfoot></table></div>
-  <p class="hint">点表头可以排序,再点一次反向。</p>`:'<div class="empty">没有符合的场次</div>';
+  <p class="hint">点表头可以排序,再点一次反向。</p>${SCHF.over?overStat(rows):''}`:'<div class="empty">没有符合的场次</div>';
   document.querySelectorAll('#schList th.sortable').forEach(th=>th.onclick=()=>{const kk=th.dataset.sk;SCHSORT=k===kk?{key:kk,dir:-dir}:{key:kk,dir:1};schList()});
 }
 /* ---- scene dialog ---- */
